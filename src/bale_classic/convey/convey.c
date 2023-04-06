@@ -416,6 +416,11 @@ convey_parameters(size_t max_bytes, size_t n_local,
   *n_buffers_ = n_buffers;
   *sync_ = sync;
   *order_ = order;
+
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "capacity : %ld, n_buffer: %ld, sync: %d, order: %d\n", capacity, n_buffers, sync, order);
+  fclose(fp);
+
 }
 
 static const uint64_t common_options = convey_opt_RECKLESS | convey_opt_DYNAMIC |
@@ -431,6 +436,9 @@ convey_new(size_t max_bytes, size_t n_local,
   size_t capacity, n_buffers;
   int sync, order;
   convey_parameters(max_bytes, n_local, &capacity, &n_buffers, &sync, &order);
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "max_bytes : %ld, n_local: %ld\n", max_bytes, n_local);
+  fclose(fp);
 
   // Build the chosen conveyor
 #if 0
