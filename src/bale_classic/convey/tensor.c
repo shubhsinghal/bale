@@ -98,6 +98,9 @@ tensor_push(convey_t* self, const void* item, int64_t pe)
 {
   tensor_t* tensor = (tensor_t*) self;
   route_t _route = tensor->router(tensor, pe);
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "%lld,%lld\n ", pe, _route.next);
+  fclose(fp);
   bool ok = porter_push(tensor->porters[0], _route.tag, item, _route.next);
   tensor->stats[convey_PUSHES] += ok;
   return ok ? convey_OK : convey_FAIL;
