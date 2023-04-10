@@ -10,7 +10,7 @@
 #ifndef PORTER_IMPL_H
 #define PORTER_IMPL_H
 
-#define PORTER_DEBUG 0
+#define PORTER_DEBUG 1
 
 #include <stdbool.h>
 #include <stddef.h>
