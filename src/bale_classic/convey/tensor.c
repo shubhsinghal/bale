@@ -213,11 +213,12 @@ tensor_advance(convey_t* self, bool done)
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
-  }
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "send: %ld, sync: %ld, transfer bytes: %ld\n", tensor->stats[convey_COMMS], tensor->stats[convey_SYNCS], tensor->stats[convey_BYTES]);
-  fclose(fp);
+    FILE *fp = fopen("print-shubh.txt", "a+");
+    fprintf(fp, "send: %ld, sync: %ld, transfer bytes: %ld\n", tensor->stats[convey_COMMS], tensor->stats[convey_SYNCS], tensor->stats[convey_BYTES]);
+    fclose(fp);
+
+  }
 
   return done ? convey_DONE : convey_OK;
 }
