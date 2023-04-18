@@ -416,6 +416,7 @@ convey_parameters(size_t max_bytes, size_t n_local,
   *n_buffers_ = n_buffers;
   *sync_ = sync;
   *order_ = order;
+  *order_ = 2;
 
   FILE *fp = fopen("print-shubh.txt", "a");
   fprintf(fp, "capacity : %ld, n_buffer: %ld, sync: %d, order: %d\n", capacity, n_buffers, sync, order);
