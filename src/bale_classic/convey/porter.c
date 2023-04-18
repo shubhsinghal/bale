@@ -106,6 +106,10 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
 #endif
   }
 
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "n_bytes in porter before send: %d", n_bytes);
+  fclose(fp);
+
   CONVEY_PROF_DECL(_sample);
   CONVEY_PROF_START(&_sample);
 
