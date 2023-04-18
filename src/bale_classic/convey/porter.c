@@ -340,7 +340,7 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
   bool room = (area->next < area->limit);
   if (room) {
     FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "push  %08x to %u, ", *(uint32_t*)item, dest);
+    //fprintf(fp, "push  %08x to %u, ", *(uint32_t*)item, dest);
     
     DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
     _prefetch_x(area->next + 96);
