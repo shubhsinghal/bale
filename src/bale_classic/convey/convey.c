@@ -365,7 +365,7 @@ convey_parameters(size_t max_bytes, size_t n_local,
   if (max_bytes < SIZE_MAX)
     for (int step = 1; true; step++) {
       size_t usage = convey_memory_usage(capacity, sync, order, n_procs, n_local, n_buffers);
-      fprintf(fp, "USAGE IS %d\n", usage);
+      fprintf(fp, "USAGE IS %ld\n", usage);
       if (usage <= max_bytes)
         break;
 
@@ -422,7 +422,7 @@ convey_parameters(size_t max_bytes, size_t n_local,
   *order_ = order;
   
 
-  FILE *fp = fopen("print-shubh.txt", "a");
+  // FILE *fp = fopen("print-shubh.txt", "a");
   if(order == 2 || order == 3) {
     fprintf(fp, "ORDER IS MATRIX CONVERTETD\n");
   }
