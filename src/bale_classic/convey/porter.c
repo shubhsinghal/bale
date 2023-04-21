@@ -58,6 +58,9 @@ static inline buffer_t*
 porter_outbuf(porter_t* self, int pe, uint64_t level)
 {
   uint64_t index = (pe << self->abundance) + level;
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "outbuf print: %ld\n", index * self->buffer_stride;);
+  fclose(fp);
   return (buffer_t*) (self->send_buffers + index * self->buffer_stride);
 }
 
