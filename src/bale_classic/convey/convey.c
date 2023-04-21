@@ -360,7 +360,7 @@ convey_parameters(size_t max_bytes, size_t n_local,
   }
 
   FILE *fp = fopen("print-shubh.txt", "a");
-  fprintf(fp, "ORDER IS %d\n", order);
+  fprintf(fp, "ORDER IS %d, max_bytes: %ld, SIZE_MAX: %ld\n", order, max_bytes, SIZE_MAX);
 
   if (max_bytes < SIZE_MAX)
     for (int step = 1; true; step++) {
