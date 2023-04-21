@@ -359,9 +359,13 @@ convey_parameters(size_t max_bytes, size_t n_local,
       order = 3;
   }
 
+  FILE *fp = fopen("print-shubh.txt", "a");
+  fprintf(fp, "ORDER IS %d\n", order);
+
   if (max_bytes < SIZE_MAX)
     for (int step = 1; true; step++) {
       size_t usage = convey_memory_usage(capacity, sync, order, n_procs, n_local, n_buffers);
+      fprintf(fp, "USAGE IS %d\n", usage);
       if (usage <= max_bytes)
         break;
 
