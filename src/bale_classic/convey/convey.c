@@ -439,14 +439,13 @@ convey_new(size_t max_bytes, size_t n_local,
            const convey_alc8r_t* alloc, uint64_t options)
 {
   FILE *fp = fopen("print-shubh.txt", "a");
-  fprintf(fp, "convey_procs_per_node() : %d\n"convey_procs_per_node());
+  fprintf(fp, "convey_procs_per_node() : %d\n", convey_procs_per_node());
   if (n_local == 0)
     n_local = convey_procs_per_node();
 
   size_t capacity, n_buffers;
   int sync, order;
   convey_parameters(max_bytes, n_local, &capacity, &n_buffers, &sync, &order);
-  FILE *fp = fopen("print-shubh.txt", "a");
   fprintf(fp, "max_bytes : %ld, n_local: %ld\n", max_bytes, n_local);
   fclose(fp);
 
