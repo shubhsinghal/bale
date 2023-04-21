@@ -426,7 +426,7 @@ convey_parameters(size_t max_bytes, size_t n_local,
   if(order == 2 || order == 3) {
     fprintf(fp, "ORDER IS MATRIX CONVERTETD\n");
   }
-  fprintf(fp, "capacity : %ld, n_buffer: %ld, sync: %d, order: %d, n_procs: %ld\n", capacity, n_buffers, sync, order, PROCS);
+  fprintf(fp, "capacity : %ld, n_buffer: %ld, sync: %d, order: %d, n_procs: %d\n", capacity, n_buffers, sync, order, PROCS);
   fclose(fp);
 
 }
