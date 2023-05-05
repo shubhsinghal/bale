@@ -366,7 +366,7 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     }
   }
   else {
-    DEBUG_PRINT(fp, "[ROOM OUT if-else:]Space for buffer before attempting to push: %d\n", area->limit);
+    DEBUG_PRINT("[ROOM OUT if-else:]Space for buffer before attempting to push: %d\n", area->limit);
     porter_try_send(self, dest);
   }
   return room;
