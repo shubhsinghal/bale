@@ -338,6 +338,11 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     remote += index * self->buffer_stride;
     memcpy(remote, buffer, n_bytes);
     self->send_count++;
+    
+    FILE *fp = fopen("print-shubh.txt", "a+");
+    fprintf(fp, "number of items: %ld, size: %ld, total-sent until now: %ld", self->send_count, n_bytes, self->byte_count);
+    fclose(fp);
+    
     self->byte_count += n_bytes;
   }
 

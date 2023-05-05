@@ -144,6 +144,10 @@ porter_try_send(porter_t* self, int dest)
   uint64_t emitted = channel->emitted;
   uint64_t delivered = channel->delivered;
 
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "emitted(in-progress) %ld, pushed %ld, delivered %ld\n", emitted, produced, delivered);
+  
+
   // Send as many buffers as we can
   bool final = false;
   while (emitted < produced && self->_class_->ready(self, dest, emitted)) {
@@ -167,6 +171,8 @@ porter_try_send(porter_t* self, int dest)
   if (drive && produced <= delivered + mask && area->next == area->limit) {
     // This code "opens" a new buffer
     buffer_t* buffer = porter_outbuf(self, dest, produced & mask);
+    fprintf(fp, "outbuf (check----)\n");
+    fclose(fp);
     area->next = buffer->data;
     area->limit = (char*)buffer + self->buffer_bytes;
   }
@@ -348,7 +354,7 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     //DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
     _prefetch_x(area->next + 96);
     size_t tag_bytes = self->tag_bytes;
-    fprintf(fp, "tag_bytes: %ld\n", tag_bytes);
+    //fprintf(fp, "tag_bytes: %ld\n", tag_bytes);
     fclose(fp);
     switch (tag_bytes) {
     case 1: *(uint8_t*)(area->next) = (uint8_t) tag; break;
@@ -360,7 +366,7 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     memcpy(area->next + tag_bytes, item, self->item_bytes);
     area->next += self->packet_bytes;
     if (area->next >= area->limit) {
-      DEBUG_PRINT("[ROOM IN if:]Space for buffer before attempting to push: %d\n", area->limit);
+      DEBUG_PRINT("Bytes to push: %d\n", );
       porter_close_buffer(self, dest, area);
       porter_try_send(self, dest);
     }
