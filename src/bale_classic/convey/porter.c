@@ -366,13 +366,11 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     memcpy(area->next + tag_bytes, item, self->item_bytes);
     area->next += self->packet_bytes;
     if (area->next >= area->limit) {
-      DEBUG_PRINT("Bytes to push: %d\n", );
       porter_close_buffer(self, dest, area);
       porter_try_send(self, dest);
     }
   }
   else {
-    DEBUG_PRINT("[ROOM OUT if-else:]Space for buffer before attempting to push: %d\n", area->limit);
     porter_try_send(self, dest);
   }
   return room;
