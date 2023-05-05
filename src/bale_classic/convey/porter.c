@@ -360,16 +360,13 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     memcpy(area->next + tag_bytes, item, self->item_bytes);
     area->next += self->packet_bytes;
     if (area->next >= area->limit) {
-      FILE *fp = fopen("print-shubh.txt", "a+");
-      fprintf(fp, "[ROOM IN if:]Space for buffer before attempting to push: %d\n", area->limit);
+      DEBUG_PRINT("[ROOM IN if:]Space for buffer before attempting to push: %d\n", area->limit);
       porter_close_buffer(self, dest, area);
       porter_try_send(self, dest);
     }
   }
   else {
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "[ROOM OUT if-else:]Space for buffer before attempting to push: %d\n", area->limit);
-    fclose(fp);
+    DEBUG_PRINT(fp, "[ROOM OUT if-else:]Space for buffer before attempting to push: %d\n", area->limit);
     porter_try_send(self, dest);
   }
   return room;
