@@ -215,7 +215,7 @@ tensor_advance(convey_t* self, bool done)
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
 
     FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "send: %ld, sync: %ld, transfer bytes: %ld\n", tensor->stats[convey_COMMS], tensor->stats[convey_SYNCS], tensor->stats[convey_BYTES]);
+    fprintf(fp, "shmem_my_pe: %d, send: %ld, sync: %ld, transfer bytes: %ld\n", shmem_my_pe(), tensor->stats[convey_COMMS], tensor->stats[convey_SYNCS], tensor->stats[convey_BYTES]);
     fclose(fp);
 
   }

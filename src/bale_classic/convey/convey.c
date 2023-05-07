@@ -360,7 +360,7 @@ convey_parameters(size_t max_bytes, size_t n_local,
   }
 
   FILE *fp = fopen("print-shubh.txt", "a");
-  fprintf(fp, "ORDER IS %d, max_bytes: %ld, SIZE_MAX: %ld\n", order, max_bytes, SIZE_MAX);
+  fprintf(fp, "shmem_my_pe: %d, ORDER IS %d, max_bytes: %ld, SIZE_MAX: %ld\n", shmem_my_pe(), order, max_bytes, SIZE_MAX);
 
   if (max_bytes < SIZE_MAX)
     for (int step = 1; true; step++) {
@@ -440,7 +440,7 @@ convey_new(size_t max_bytes, size_t n_local,
            const convey_alc8r_t* alloc, uint64_t options)
 {
   FILE *fp = fopen("print-shubh.txt", "a");
-  fprintf(fp, "convey_procs_per_node() : %ld\n", convey_procs_per_node());
+  fprintf(fp, "shmem_my_pe: %d, convey_procs_per_node() : %ld\n", shmem_my_pe(), convey_procs_per_node());
   if (n_local == 0)
     n_local = convey_procs_per_node();
 

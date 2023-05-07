@@ -33,7 +33,7 @@ porter_grab_buffers(porter_t* self)
   size_t size = self->buffer_stride * self->n_ranks;
   int shift = self->abundance * self->inmult;
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "size:%ld, send: %d, recv: %d\n", size, self->abundance, shift);
+  fprintf(fp, "shmem_my_pe: %d, size:%ld, send: %d, recv: %d\n", shmem_my_pe() , size, self->abundance, shift);
   PARALLEL_ALLOC(self, send_buffers, alloc, size << self->abundance, char);
   PARALLEL_ALLOC(self, recv_buffers, alloc, size << shift, char);
   uintptr_t bits = (uintptr_t) self->send_buffers | (uintptr_t) self->recv_buffers;
@@ -59,7 +59,7 @@ porter_outbuf(porter_t* self, int pe, uint64_t level)
 {
   uint64_t index = (pe << self->abundance) + level;
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "outbuf print: %ld\n", index * self->buffer_stride);
+  fprintf(fp, "shmem_my_pe: %d, outbuf print: %ld\n",shmem_my_pe(), index * self->buffer_stride);
   fclose(fp);
   return (buffer_t*) (self->send_buffers + index * self->buffer_stride);
 }
@@ -110,7 +110,7 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
   }
 
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "n_bytes in porter before send: %ld\n", n_bytes);
+  fprintf(fp, "shmem_my_pe: %d, n_bytes in porter before send: %ld\n", shmem_my_pe(), n_bytes);
   fclose(fp);
 
   CONVEY_PROF_DECL(_sample);
@@ -145,7 +145,7 @@ porter_try_send(porter_t* self, int dest)
   uint64_t delivered = channel->delivered;
 
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "emitted(in-progress) %ld, pushed %ld, delivered %ld\n", emitted, produced, delivered);
+  fprintf(fp, "shmem_my_pe: %d, emitted(in-progress) %ld, pushed %ld, delivered %ld\n",shmem_my_pe(), emitted, produced, delivered);
   
 
   // Send as many buffers as we can
@@ -354,6 +354,7 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     //DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
     _prefetch_x(area->next + 96);
     size_t tag_bytes = self->tag_bytes;
+    fprintf(stderr, "shmem_my_pe: %d, tag: %ld\n", shmem_my_pe(), tag);
     //fprintf(fp, "tag_bytes: %ld\n", tag_bytes);
     fclose(fp);
     switch (tag_bytes) {
