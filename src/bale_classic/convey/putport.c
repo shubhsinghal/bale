@@ -164,7 +164,7 @@ putp_borrow(porter_t* self)
   uint64_t level = putp->disposed[source] & mask;
   buffer_t* taken = porter_inbuf(self, source, level);
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shmem_my_pe: %d, source :%d, taken:%d, putp->i_pending: %d, putp->n_pending: %d\n", shmem_my_pe(), source, taken, putp->i_pending, putp->n_pending);
+  fprintf(fp, "shmem_my_pe: %d, source :%d, putp->i_pending: %d, putp->n_pending: %d\n", shmem_my_pe(), source, putp->i_pending, putp->n_pending);
   fclose(fp);
   taken->source = source;
   putp->taken = taken;

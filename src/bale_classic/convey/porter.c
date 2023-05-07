@@ -354,7 +354,7 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     //DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
     _prefetch_x(area->next + 96);
     size_t tag_bytes = self->tag_bytes;
-    fprintf(fp, "shmem_my_pe: %d, tag: %ld\n", shmem_my_pe(), tag);
+    //fprintf(fp, "shmem_my_pe: %d, tag: %ld\n", shmem_my_pe(), tag);
     //fprintf(fp, "tag_bytes: %ld\n", tag_bytes);
     fclose(fp);
     switch (tag_bytes) {
