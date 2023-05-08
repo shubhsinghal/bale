@@ -21,7 +21,7 @@ first_uint32(size_t length, const void* item)
   memcpy(&first, item, (length < 4) ? length : 4);
   return first;
 }
-#endif
+// #endif
 
 
 /*** Buffer Allocation ***/
