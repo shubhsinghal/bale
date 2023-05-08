@@ -13,7 +13,7 @@
 #include "porter_impl.h"
 #include "private.h"
 
-#if PORTER_DEBUG
+// #if PORTER_DEBUG
 static uint32_t
 first_uint32(size_t length, const void* item)
 {
