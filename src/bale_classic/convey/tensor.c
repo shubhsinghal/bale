@@ -372,6 +372,9 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
   const bool shrink = ((MATRIX_REMOTE_HOP ? n_rows : n_local) <= 256) &&
     !(options & (convey_opt_COMPRESS | convey_opt_STANDARD));
 
+  FILE *fp = fprintf("print-shubh.txt", "a+");
+  fprintf(fp, "shrink: %d\n", shrink);
+
   tensor_t* matrix = malloc(sizeof(tensor_t));
   int32_t* friends[2];
   friends[0] = malloc(n_local * sizeof(uint32_t));
@@ -390,6 +393,7 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
     .convey = *base, .order = 2,
     .n_local = n_local, .router = &matrix_route,
   };
+  fprintf(fp, "MATRIX_REMOTE_HOP: %d\n", MATRIX_REMOTE_HOP);
   matrix->tag_bytes[MATRIX_REMOTE_HOP] = t;
   matrix->tag_bytes[MATRIX_REMOTE_HOP ^ 1] = 4;
   matrix->div_local = _divbymul32_prep(n_local);
