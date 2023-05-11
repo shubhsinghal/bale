@@ -555,7 +555,7 @@ porter_new(int n, int32_t relative[n], int my_rank,
   PARALLEL_ALLOC(putp, consumed, alloc, n * m, long long);
   FILE *fp = fopen("print-shubh.txt", "a+");
   fprintf(fp, "n,m: %d, %d\n", n, m);
-  flcose(fp);
+  fclose(fp);
   bool ok = (porter->send_areas && porter->all_sent && porter->channels &&
              (!steady || porter->waiting) && putp->friends && putp->disposed &&
              putp->pending && putp->received && putp->consumed);
