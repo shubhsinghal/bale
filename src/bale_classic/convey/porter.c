@@ -35,7 +35,7 @@ porter_grab_buffers(porter_t* self)
   PARALLEL_ALLOC(self, send_buffers, alloc, size << self->abundance, char);
   PARALLEL_ALLOC(self, recv_buffers, alloc, size << shift, char);
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "send_buf_size: %ld, recv_buf_size: %ld\n", size << self->abundance, size << shift);
+  fprintf(fp, "size: %d, send_buf_size: %ld, recv_buf_size: %ld\n", size, size << self->abundance, size << shift);
   fclose(fp);
   uintptr_t bits = (uintptr_t) self->send_buffers | (uintptr_t) self->recv_buffers;
   self->buffer_align = bits & ~(bits - 1);
