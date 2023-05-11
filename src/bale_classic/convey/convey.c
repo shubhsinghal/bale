@@ -359,13 +359,9 @@ convey_parameters(size_t max_bytes, size_t n_local,
       order = 3;
   }
 
-  FILE *fp = fopen("print-shubh.txt", "a");
-  fprintf(fp, "shmem_my_pe: %d, ORDER IS %d, max_bytes: %ld, SIZE_MAX: %ld\n", shmem_my_pe(), order, max_bytes, SIZE_MAX);
-
   if (max_bytes < SIZE_MAX)
     for (int step = 1; true; step++) {
       size_t usage = convey_memory_usage(capacity, sync, order, n_procs, n_local, n_buffers);
-      fprintf(fp, "USAGE IS %ld\n", usage);
       if (usage <= max_bytes)
         break;
 
@@ -420,15 +416,6 @@ convey_parameters(size_t max_bytes, size_t n_local,
   *n_buffers_ = n_buffers;
   *sync_ = sync;
   *order_ = order;
-  
-
-  // FILE *fp = fopen("print-shubh.txt", "a");
-  if(order == 2 || order == 3) {
-    fprintf(fp, "ORDER IS MATRIX CONVERTETD\n");
-  }
-  fprintf(fp, "capacity : %ld, n_buffer: %ld, sync: %d, order: %d, n_procs: %d\n", capacity, n_buffers, sync, order, PROCS);
-  fclose(fp);
-
 }
 
 static const uint64_t common_options = convey_opt_RECKLESS | convey_opt_DYNAMIC |
@@ -438,16 +425,12 @@ convey_t*
 convey_new(size_t max_bytes, size_t n_local,
            const convey_alc8r_t* alloc, uint64_t options)
 {
-  FILE *fp = fopen("print-shubh.txt", "a");
-  fprintf(fp, "shmem_my_pe: %d, convey_procs_per_node() : %ld\n", shmem_my_pe(), convey_procs_per_node());
   if (n_local == 0)
     n_local = convey_procs_per_node();
 
   size_t capacity, n_buffers;
   int sync, order;
   convey_parameters(max_bytes, n_local, &capacity, &n_buffers, &sync, &order);
-  fprintf(fp, "max_bytes : %ld, n_local: %ld\n", max_bytes, n_local);
-  fclose(fp);
 
   // Build the chosen conveyor
 #if 0

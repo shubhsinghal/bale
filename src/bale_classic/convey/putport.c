@@ -163,9 +163,6 @@ putp_borrow(porter_t* self)
   uint64_t mask = (1L << self->abundance) - 1;
   uint64_t level = putp->disposed[source] & mask;
   buffer_t* taken = porter_inbuf(self, source, level);
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shmem_my_pe: %d, source :%d, putp->i_pending: %d, putp->n_pending: %d\n", shmem_my_pe(), source, putp->i_pending, putp->n_pending);
-  fclose(fp);
   taken->source = source;
   putp->taken = taken;
 
@@ -341,11 +338,6 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     remote += index * self->buffer_stride;
     memcpy(remote, buffer, n_bytes);
     self->send_count++;
-    
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "shmem_my_pe: %d, number of items: %ld, size: %ld, total-sent until now: %ld\n", shmem_my_pe(), self->send_count, n_bytes, self->byte_count);
-    fclose(fp);
-    
     self->byte_count += n_bytes;
   }
 
@@ -435,9 +427,6 @@ nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     const int rank = self->my_rank;
     const int pe = putp->friends[dest];
     buffer_t* remote = porter_inbuf(self, rank, level);
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "shmem_my_pe: %d, BLOCK SEND: %d bytes\n",shmem_my_pe(), n_bytes);
-    fclose(fp);
     DEBUG_PRINT("%zu bytes to %d, signal = %lu\n", buffer->limit - buffer->start, pe, signal);
     shmem_putmem_nbi(remote, buffer, n_bytes, pe);
     self->send_count++;
@@ -564,6 +553,9 @@ porter_new(int n, int32_t relative[n], int my_rank,
   // Symmetric allocations
   PARALLEL_ALLOC(putp, received, alloc, n, atomic_uint64_t);
   PARALLEL_ALLOC(putp, consumed, alloc, n * m, long long);
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "n,m: %d, %d\n", n, m);
+  flcose(fp);
   bool ok = (porter->send_areas && porter->all_sent && porter->channels &&
              (!steady || porter->waiting) && putp->friends && putp->disposed &&
              putp->pending && putp->received && putp->consumed);

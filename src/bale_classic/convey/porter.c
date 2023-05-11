@@ -13,7 +13,7 @@
 #include "porter_impl.h"
 #include "private.h"
 
-// #if PORTER_DEBUG
+#if PORTER_DEBUG
 static uint32_t
 first_uint32(size_t length, const void* item)
 {
@@ -21,7 +21,7 @@ first_uint32(size_t length, const void* item)
   memcpy(&first, item, (length < 4) ? length : 4);
   return first;
 }
-// #endif
+#endif
 
 
 /*** Buffer Allocation ***/
@@ -32,10 +32,11 @@ porter_grab_buffers(porter_t* self)
   convey_alc8r_t* alloc = &self->alloc;
   size_t size = self->buffer_stride * self->n_ranks;
   int shift = self->abundance * self->inmult;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shmem_my_pe: %d, size:%ld, send: %d, recv: %d\n", shmem_my_pe() , size, self->abundance, shift);
   PARALLEL_ALLOC(self, send_buffers, alloc, size << self->abundance, char);
   PARALLEL_ALLOC(self, recv_buffers, alloc, size << shift, char);
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "send_buf_size: %ld, recv_buf_size: %ld\n", size << self->abundance, size << shift);
+  fclose(fp);
   uintptr_t bits = (uintptr_t) self->send_buffers | (uintptr_t) self->recv_buffers;
   self->buffer_align = bits & ~(bits - 1);
   return self->send_buffers && self->recv_buffers;
@@ -58,9 +59,6 @@ static inline buffer_t*
 porter_outbuf(porter_t* self, int pe, uint64_t level)
 {
   uint64_t index = (pe << self->abundance) + level;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shmem_my_pe: %d, outbuf print: %ld\n",shmem_my_pe(), index * self->buffer_stride);
-  fclose(fp);
   return (buffer_t*) (self->send_buffers + index * self->buffer_stride);
 }
 
@@ -109,10 +107,6 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
 #endif
   }
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shmem_my_pe: %d, n_bytes in porter before send: %ld\n", shmem_my_pe(), n_bytes);
-  fclose(fp);
-
   CONVEY_PROF_DECL(_sample);
   CONVEY_PROF_START(&_sample);
 
@@ -144,10 +138,6 @@ porter_try_send(porter_t* self, int dest)
   uint64_t emitted = channel->emitted;
   uint64_t delivered = channel->delivered;
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shmem_my_pe: %d, emitted(in-progress) %ld, pushed %ld, delivered %ld\n",shmem_my_pe(), emitted, produced, delivered);
-  
-
   // Send as many buffers as we can
   bool final = false;
   while (emitted < produced && self->_class_->ready(self, dest, emitted)) {
@@ -171,8 +161,6 @@ porter_try_send(porter_t* self, int dest)
   if (drive && produced <= delivered + mask && area->next == area->limit) {
     // This code "opens" a new buffer
     buffer_t* buffer = porter_outbuf(self, dest, produced & mask);
-    fprintf(fp, "outbuf (check----)\n");
-    fclose(fp);
     area->next = buffer->data;
     area->limit = (char*)buffer + self->buffer_bytes;
   }
@@ -348,15 +336,9 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
   area_t* area = &self->send_areas[dest];
   bool room = (area->next < area->limit);
   if (room) {
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    //fprintf(fp, "push  %08x to %u, ", *(uint32_t*)item, dest);
-    
-    //DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
+    DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
     _prefetch_x(area->next + 96);
     size_t tag_bytes = self->tag_bytes;
-    //fprintf(fp, "shmem_my_pe: %d, tag: %ld\n", shmem_my_pe(), tag);
-    //fprintf(fp, "tag_bytes: %ld\n", tag_bytes);
-    fclose(fp);
     switch (tag_bytes) {
     case 1: *(uint8_t*)(area->next) = (uint8_t) tag; break;
     case 2: *(uint16_t*)(area->next) = (uint16_t) tag; break;
@@ -371,9 +353,8 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
       porter_try_send(self, dest);
     }
   }
-  else {
+  else
     porter_try_send(self, dest);
-  }
   return room;
 }
 

@@ -98,9 +98,6 @@ tensor_push(convey_t* self, const void* item, int64_t pe)
 {
   tensor_t* tensor = (tensor_t*) self;
   route_t _route = tensor->router(tensor, pe);
-  // FILE *fp = fopen("print-shubh.txt", "a+");
-  // fprintf(fp, "%lld,%lld\n ", pe, _route.next);
-  // fclose(fp);
   bool ok = porter_push(tensor->porters[0], _route.tag, item, _route.next);
   tensor->stats[convey_PUSHES] += ok;
   return ok ? convey_OK : convey_FAIL;
@@ -213,13 +210,7 @@ tensor_advance(convey_t* self, bool done)
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
-
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "shmem_my_pe: %d, send: %ld, sync: %ld, transfer bytes: %ld\n", shmem_my_pe(), tensor->stats[convey_COMMS], tensor->stats[convey_SYNCS], tensor->stats[convey_BYTES]);
-    fclose(fp);
-
   }
-
   return done ? convey_DONE : convey_OK;
 }
 
