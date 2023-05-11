@@ -575,8 +575,12 @@ porter_new(int n, int32_t relative[n], int my_rank,
   for (int i = 0; i < n; i++)
     if (relative[i] < 0 || relative[i] >= n_procs)
       putp->friends[i] = relative[i] = -1;
-    else
+    else {
       putp->friends[i] = mpp_rel_to_abs_proc(MPP_COMM_CURR, relative[i]);
+      FILE *fp = fopen("print-shubh.txt", "a+");
+      fprintf(fp, "frinds, relative: %ld, %ld\n", putp->friends[i], relative[i]);
+      fclose(fp);
+    }
 
   // Decide which subclass to use
   const porter_methods_t* methods = local ? local_prepare(porter) :
