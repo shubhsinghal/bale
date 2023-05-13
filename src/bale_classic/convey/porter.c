@@ -279,8 +279,11 @@ porter_setup(porter_t* self, size_t item_size)
 {
   self->item_bytes = item_size;
   self->packet_bytes = porter_packet_size(self->tag_bytes, item_size);
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "Pckt bytes: %ld\n", self->packet_bytes);
   size_t header_bytes = sizeof(buffer_t);
   size_t n_items = (self->buffer_stride - header_bytes) / self->packet_bytes;
+  fprintf(fp, "self->buffer_stride : %ld - header_bytes: %ld\n", self->buffer_stride, header_bytes);
   self->buffer_bytes = header_bytes + n_items * self->packet_bytes;
 
   long ok = self->_class_->setup(self);
@@ -301,6 +304,7 @@ porter_setup(porter_t* self, size_t item_size)
 
   if (ok) {
     size_t n = self->n_ranks;
+    fprintf(fp, "n_ranks: %ld\n", self->n_ranks);
     for (int i = 0; i < n; i++) {
       buffer_t* buffer = porter_outbuf(self, i, 0);
       area_t* area = &self->send_areas[i];
@@ -319,6 +323,7 @@ porter_setup(porter_t* self, size_t item_size)
     self->drained = false;
     self->n_urgent = 0;
     self->phase = self->my_rank;
+    fprintf(fp, "my_rank: %ld\n", self->my_rank);
     self->send_count = 0;
     self->sync_count = 0;
     self->byte_count = 0;

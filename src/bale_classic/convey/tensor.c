@@ -223,6 +223,8 @@ tensor_begin(convey_t* self, size_t item_size, size_t align)
   if (item_size == 0)
     return convey_error_ZERO;
   size_t packet_bytes = porter_packet_size(tensor->item_offset, item_size);
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "Item size: %ld, Packet size: %ld, Tenosr max_bytes: %ld, Tneosr item offset: %ld\n", item_size, packet_bytes, tensor->max_bytes, tensor->item_offset);
   if (packet_bytes > tensor->max_bytes)
     return convey_error_OFLO;
 
