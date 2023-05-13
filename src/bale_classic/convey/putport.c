@@ -243,6 +243,10 @@ static bool
 standard_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
               buffer_t* buffer, uint64_t signal)
 {
+
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "standard_send: %d\n", dest);
+  fclose(fp);
   put_porter_t* putp = (put_porter_t*) self;
   const int rank = self->my_rank;
   const int pe = putp->friends[dest];
@@ -331,6 +335,9 @@ static bool
 local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
            buffer_t* buffer, uint64_t signal)
 {
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "local_send: %d\n", dest);
+  fclose(fp);
   const int rank = self->my_rank;
   const nbrhood_t* nbrhood = ((put_porter_t*)self)->extra;
 

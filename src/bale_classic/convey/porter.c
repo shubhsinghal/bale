@@ -110,6 +110,10 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
   CONVEY_PROF_DECL(_sample);
   CONVEY_PROF_START(&_sample);
 
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "shift: %d, level: %ld, n_bytes: %ld, signal: %ld\n", shift, level, n_bytes, signal);
+  fclose(fp);
+
   bool arrived = self->_class_->send(self, dest, level, n_bytes, buffer, signal);
 
   CONVEY_PROF_STOP(&_sample, self->opcode, self->relative[dest], n_bytes + 8);
