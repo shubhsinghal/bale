@@ -231,7 +231,10 @@ standard_ready(porter_t* self, int dest, uint64_t count)
 {
   put_porter_t* putp = (put_porter_t*) self;
   const int shift = self->abundance;
+  FILE *fp= fopen("print-shubh.txt", "a+");
+  fprintf(fp, "shift: %d, count: %ld\n", shift, count);
   const uint64_t mask = (UINT64_C(1) << shift) - 1;
+  fprintf(fp, "mask: %ld\n", mask);
   long long* consumed = &putp->consumed[dest << shift];
   return (consumed[count & mask] >= (count >> shift));
 }
