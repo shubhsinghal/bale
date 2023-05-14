@@ -111,7 +111,7 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
   CONVEY_PROF_START(&_sample);
 
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "pe: %ld, shift: %d, level: %ld, n_bytes: %ld, signal: %ld\n", MYTHREAD, shift, level, n_bytes, signal);
+  fprintf(fp, "pe: %ld, shift: %d, level: %ld, n_bytes: %ld, signal: %ld\n", shmem_my_pe(), shift, level, n_bytes, signal);
   fclose(fp);
 
   bool arrived = self->_class_->send(self, dest, level, n_bytes, buffer, signal);
@@ -149,12 +149,12 @@ porter_try_send(porter_t* self, int dest)
     bool arrived = porter_send_buffer(self, dest, emitted, final);
     delivered += arrived;
     FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "pe: %ld, delivered: %ld\n", MYTHREAD, delivered);
+    fprintf(fp, "pe: %ld, delivered: %ld\n", shmem_my_pe(), delivered);
     if (arrived)
       porter_record_delivery(self, dest, delivered);
     emitted++;  // @emitted
   }
-  fprintf(fp, "pe: %ld, emitted: %ld\n", MYTHREAD, emitted);
+  fprintf(fp, "pe: %ld, emitted: %ld\n", shmem_my_pe(), emitted);
   channel->emitted = emitted;
 
   // In the endgame, we advance to an empty buffer if we have already
@@ -167,7 +167,7 @@ porter_try_send(porter_t* self, int dest)
   area_t* area = &self->send_areas[dest];
   if (drive && produced <= delivered + mask && area->next == area->limit) {
     // This code "opens" a new buffer
-    fprintf(fp, "pe: %ld, delievered: %ld, produced: %ld, mask: %ld\n", MYTHREAD, delivered, produced, mask);
+    fprintf(fp, "pe: %ld, delievered: %ld, produced: %ld, mask: %ld\n", shmem_my_pe(), delivered, produced, mask);
     buffer_t* buffer = porter_outbuf(self, dest, produced & mask);
     area->next = buffer->data;
     area->limit = (char*)buffer + self->buffer_bytes;
