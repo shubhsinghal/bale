@@ -335,9 +335,7 @@ static bool
 local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
            buffer_t* buffer, uint64_t signal)
 {
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "local_send: %d\n", dest);
-  fclose(fp);
+  
   const int rank = self->my_rank;
   const nbrhood_t* nbrhood = ((put_porter_t*)self)->extra;
 
@@ -345,6 +343,9 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   if (n_bytes > 0) {
     char* remote = nbrhood->buffer_ptrs[dest];
     uint64_t index = (rank << self->abundance) + level;
+    FILE *fp = fopen("print-shubh.txt", "a+");
+    fprintf(fp, "local_send: %d, dest: %d, remote += %ld\n", rank, dest, index * self->buffer_stride );
+    fclose(fp);
     remote += index * self->buffer_stride;
     memcpy(remote, buffer, n_bytes);
     self->send_count++;
