@@ -144,11 +144,11 @@ porter_try_send(porter_t* self, int dest)
 
   // Send as many buffers as we can
   bool final = false;
+  FILE *fp = fopen("print-shubh.txt", "a+");
   while (emitted < produced && self->_class_->ready(self, dest, emitted)) {
     final = self->endgame && (emitted == produced - 1);
     bool arrived = porter_send_buffer(self, dest, emitted, final);
     delivered += arrived;
-    FILE *fp = fopen("print-shubh.txt", "a+");
     fprintf(fp, "pe: %ld, delivered: %ld\n", shmem_my_pe(), delivered);
     if (arrived)
       porter_record_delivery(self, dest, delivered);
