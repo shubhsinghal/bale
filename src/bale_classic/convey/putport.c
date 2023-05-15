@@ -153,7 +153,7 @@ putp_borrow(porter_t* self)
 {
   put_porter_t* putp = (put_porter_t*) self;
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "i_pending: %d, n_pending: %d\n", putp->i_pending, putp->n_pending);
+  fprintf(fp, "my_pe(): %ld, i_pending: %d, n_pending: %d\n", shmem_my_pe(), putp->i_pending, putp->n_pending);
   if (putp->i_pending == putp->n_pending)
     putp_scan_receipts(putp);
   int i = putp->i_pending;
