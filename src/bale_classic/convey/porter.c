@@ -114,7 +114,7 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
   fprintf(fp, "pe: %ld, shift: %d, level: %ld, n_bytes: %ld, signal: %ld\n", shmem_my_pe(), shift, level, n_bytes, signal);
   fclose(fp);
 
-  bool arrived = self->_class_->send(self, des t, level, n_bytes, buffer, signal);
+  bool arrived = self->_class_->send(self, dest, level, n_bytes, buffer, signal);
 
   CONVEY_PROF_STOP(&_sample, self->opcode, self->relative[dest], n_bytes + 8);
 
