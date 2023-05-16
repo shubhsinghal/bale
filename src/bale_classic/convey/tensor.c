@@ -185,7 +185,7 @@ tensor_advance(convey_t* self, bool done)
   const int order = tensor->order;
   // No shortcuts: must advance every porter to ensure progress
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "my_pe() : %d, tensor->n_complete: %d \n", shmem_my_pe(), tensor->n_complete);
+  fprintf(fp, "my_pe() : %d, tensor->n_complete: %d, done:%d \n", shmem_my_pe(), tensor->n_complete, done);
   for (int k = tensor->n_complete; k < order; k++) {
     bool go = porter_advance(tensor->porters[k], done);
     if (!go) {
