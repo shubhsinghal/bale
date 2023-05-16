@@ -89,6 +89,7 @@ putp_scan_receipts(put_porter_t* putp)
   bool stuck[n_ranks];
   memset(stuck, 0, n_ranks);
 
+  FILE *fp = fopen("print-shubh.txt", "a+");
   // Compress the current pending list and create set
   int n = putp->n_pending, k = 0;
   for (int i = 0; i < n; i++) {
@@ -96,10 +97,11 @@ putp_scan_receipts(put_porter_t* putp)
     if (source >= 0) {
       putp->pending[k++] = source;
       stuck[source] = true;
+      fprintf(fp, "my_pe(): %ld, stuck-source: %d\n", shmem_my_pe(), source);
     }
   }
   int n_stuck = k;
-
+  fprintf(fp, "my_pe(): %ld, n_stuck %d\n", shmem_my_pe(), n_stuck);
   // Traverse the incoming buffers (perhaps in a better order?)
   int n_drained = 0;
   for (int source = 0; source < n_ranks; source++) {
@@ -107,14 +109,18 @@ putp_scan_receipts(put_porter_t* putp)
       continue;
     long long disposed = putp->disposed[source];
     uint64_t received = putp->received[source];  // atomic_load
-    if ((received >> 1) > disposed)
+    if ((received >> 1) > disposed) {
       putp->pending[k++] = source;
-    else
-      n_drained += (received & 1);
+      fprintf(fp, "my_pe(): %ld, source-pending: %d\n", shmem_my_pe(), source);
+    }
+    else {
+       n_drained += (received & 1);
+       fprintf(fp, "my_pe(): %ld, n_drained: %d\n", shmem_my_pe(), source);
+    }
   }
 
   self->drained = (n_drained == self->n_ranks);
-  putp->n_pending = k;
+  putp->n_pending = k; 
   // Work on new buffers if possible, otherwise start over?
   // self->i_pending = (n_stuck < k) ? n_stuck : 0;
   putp->i_pending = 0;

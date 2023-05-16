@@ -146,6 +146,7 @@ static int
 tensor_pull(convey_t* self, void* item, int64_t* from)
 {
   void* source = tensor_upull(self, from);
+  
   if (source == NULL)
     return convey_FAIL;
   memcpy(item, source, self->item_size);
@@ -183,6 +184,8 @@ tensor_advance(convey_t* self, bool done)
 
   const int order = tensor->order;
   // No shortcuts: must advance every porter to ensure progress
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "my_pe() : %d, tensor->n_complete: %d \n", shmem_my_pe(), tensor->n_complete);
   for (int k = tensor->n_complete; k < order; k++) {
     bool go = porter_advance(tensor->porters[k], done);
     if (!go) {
@@ -192,7 +195,7 @@ tensor_advance(convey_t* self, bool done)
     done = false;
     if (k == order - 1)
       break;
-
+  
     // Try to interleave work in a reasonable way
     for (int loop = 0; loop < 5; loop++) {
       buffer_t* buffer = porter_borrow(tensor->porters[k]);
