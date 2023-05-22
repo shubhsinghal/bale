@@ -456,6 +456,10 @@ bool
 porter_advance(porter_t* self, bool done)
 {
   if (!self->endgame) {
+    if (!self->waiting) {
+      FILE *fp = fopen("print-shubh.txt", "a+");
+      fprintf(fp, "phase\n");
+    }
     if (self->waiting) {
       int phase = self->phase;
       FILE *fp = fopen("print-shubh.txt", "a+");
