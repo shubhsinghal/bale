@@ -180,17 +180,42 @@ porter_try_send(porter_t* self, int dest)
 // A steady porter calls this function periodically for each 'dest' to
 // ensure that partially full send buffers don't sit around indefinitely.
 // This function is not called during the endgame.
+/*
+
+  bool
+porter_advance(porter_t* self, bool done)
+{
+  if (!self->endgame) {
+    if (self->waiting) {
+      int phase = self->phase;
+      FILE *fp = fopen("print-shubh.txt", "a+");
+      fprintf(fp, "phase: %d\n", phase);
+      self->phase = (phase+1 < self->n_ranks) ? phase+1 : 0;
+      porter_ensure_progress(self, phase);
+    }
+    if (self->n_urgent > 0)
+      porter_try_urgent(self);
+    self->endgame = done;
+  }
+
+  if (self->endgame && !self->flushed)
+    self->flushed = porter_try_flush(self);
+  return !self->flushed || !self->drained;
+}
+
+*/
 static void
 porter_ensure_progress(porter_t* self, int dest)
 {
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  uint8_t wait = self->waiting[dest];
+  FILE *fp = fopen("print-shubh-1.txt", "a+");
+  fprintf(fp, "pe: %ld, waiting[dest]: %d, dest: %d\n", shmem_my_pe(), self->waiting[dest] , dest);
+  uint8_t wait = self->waiting[dest]; 
   if (wait > 0 && wait < PATIENCE) {
     self->waiting[dest] = wait + 1;
     return;
   }
 
-  fprintf(fp, "pe: %ld, wait: %d\n", shmem_my_pe(), wait);
+  fprintf(fp, "pe: %ld, wait: %d, dest: %d\n", shmem_my_pe(), wait, dest);
 
   // Determine whether we have any undelivered data
   channel_t* channel = &self->channels[dest];
