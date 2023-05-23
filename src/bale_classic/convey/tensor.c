@@ -372,10 +372,13 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
   const bool shrink = ((MATRIX_REMOTE_HOP ? n_rows : n_local) <= 256) &&
     !(options & (convey_opt_COMPRESS | convey_opt_STANDARD));
 
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "shrink:%d\n", shrink);
   tensor_t* matrix = malloc(sizeof(tensor_t));
   int32_t* friends[2];
   friends[0] = malloc(n_local * sizeof(uint32_t));
   friends[1] = malloc(n_rows * sizeof(uint32_t));
+  fprintf(fp, "n_rows:%d\n", n_rows);
   if (! (matrix && friends[0] && friends[1])) {
     free(friends[1]);
     free(friends[0]);
@@ -385,11 +388,13 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
 
   size_t my_proc = MY_PROC;
   uint32_t me[2] = { my_proc % n_local, my_proc / n_local };
+  fprintf(fp, "my_pe():%ld, me[0]: %d, me[1]:%d\n", MY_PROC, me[0], me[1]);
   const size_t t = (shrink ? 1 : 4);
   *matrix = (tensor_t) {
     .convey = *base, .order = 2,
     .n_local = n_local, .router = &matrix_route,
   };
+  fprintf(fp, "matrix-hop:%ld\n", MATRIX_REMOTE_HOP);
   matrix->tag_bytes[MATRIX_REMOTE_HOP] = t;
   matrix->tag_bytes[MATRIX_REMOTE_HOP ^ 1] = 4;
   matrix->div_local = _divbymul32_prep(n_local);
