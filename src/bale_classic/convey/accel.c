@@ -128,9 +128,6 @@ Flavor##_pull_##Tag##_##Item(convey_t* self, void* item, int64_t* from)
 #endif
   }
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "from pull: %ld\n", *from);
-
   tensor->stats[convey_PULLS]++;
   memcpy(item, packet + Tag, Item);
   return convey_OK;

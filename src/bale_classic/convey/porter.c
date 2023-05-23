@@ -34,9 +34,6 @@ porter_grab_buffers(porter_t* self)
   int shift = self->abundance * self->inmult;
   PARALLEL_ALLOC(self, send_buffers, alloc, size << self->abundance, char);
   PARALLEL_ALLOC(self, recv_buffers, alloc, size << shift, char);
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "size: %ld, send_buf_size: %ld, recv_buf_size: %ld\n", size, size << self->abundance, size << shift);
-  fclose(fp);
   uintptr_t bits = (uintptr_t) self->send_buffers | (uintptr_t) self->recv_buffers;
   self->buffer_align = bits & ~(bits - 1);
   return self->send_buffers && self->recv_buffers;
@@ -110,10 +107,6 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
   CONVEY_PROF_DECL(_sample);
   CONVEY_PROF_START(&_sample);
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "pe: %ld, shift: %d, level: %ld, n_bytes: %ld, signal: %ld\n", shmem_my_pe(), shift, level, n_bytes, signal);
-  fclose(fp);
-
   bool arrived = self->_class_->send(self, dest, level, n_bytes, buffer, signal);
 
   CONVEY_PROF_STOP(&_sample, self->opcode, self->relative[dest], n_bytes + 8);
@@ -144,17 +137,14 @@ porter_try_send(porter_t* self, int dest)
 
   // Send as many buffers as we can
   bool final = false;
-  FILE *fp = fopen("print-shubh.txt", "a+");
   while (emitted < produced && self->_class_->ready(self, dest, emitted)) {
     final = self->endgame && (emitted == produced - 1);
     bool arrived = porter_send_buffer(self, dest, emitted, final);
     delivered += arrived;
-    fprintf(fp, "pe: %ld, delivered: %ld\n", shmem_my_pe(), delivered);
     if (arrived)
       porter_record_delivery(self, dest, delivered);
     emitted++;  // @emitted
   }
-  fprintf(fp, "pe: %ld, emitted: %ld\n", shmem_my_pe(), emitted);
   channel->emitted = emitted;
 
   // In the endgame, we advance to an empty buffer if we have already
@@ -167,7 +157,6 @@ porter_try_send(porter_t* self, int dest)
   area_t* area = &self->send_areas[dest];
   if (drive && produced <= delivered + mask && area->next == area->limit) {
     // This code "opens" a new buffer
-    fprintf(fp, "pe: %ld, delievered: %ld, produced: %ld, mask: %ld\n", shmem_my_pe(), delivered, produced, mask);
     buffer_t* buffer = porter_outbuf(self, dest, produced & mask);
     area->next = buffer->data;
     area->limit = (char*)buffer + self->buffer_bytes;
@@ -180,54 +169,24 @@ porter_try_send(porter_t* self, int dest)
 // A steady porter calls this function periodically for each 'dest' to
 // ensure that partially full send buffers don't sit around indefinitely.
 // This function is not called during the endgame.
-/*
-
-  bool
-porter_advance(porter_t* self, bool done)
-{
-  if (!self->endgame) {
-    if (self->waiting) {
-      int phase = self->phase;
-      FILE *fp = fopen("print-shubh.txt", "a+");
-      fprintf(fp, "phase: %d\n", phase);
-      self->phase = (phase+1 < self->n_ranks) ? phase+1 : 0;
-      porter_ensure_progress(self, phase);
-    }
-    if (self->n_urgent > 0)
-      porter_try_urgent(self);
-    self->endgame = done;
-  }
-
-  if (self->endgame && !self->flushed)
-    self->flushed = porter_try_flush(self);
-  return !self->flushed || !self->drained;
-}
-
-*/
 static void
 porter_ensure_progress(porter_t* self, int dest)
 {
-  FILE *fp = fopen("print-shubh-1.txt", "a+");
-  fprintf(fp, "pe: %ld, waiting[dest]: %d, dest: %d\n", shmem_my_pe(), self->waiting[dest] , dest);
-  uint8_t wait = self->waiting[dest]; 
+  uint8_t wait = self->waiting[dest];
   if (wait > 0 && wait < PATIENCE) {
     self->waiting[dest] = wait + 1;
     return;
   }
 
-  fprintf(fp, "pe: %ld, wait: %d, dest: %d\n", shmem_my_pe(), wait, dest);
-
   // Determine whether we have any undelivered data
   channel_t* channel = &self->channels[dest];
   area_t* area = &self->send_areas[dest];
   bool full = (channel->produced > channel->delivered);
-  fprintf(fp, "pe: %ld, produced: %ld, delivered: %ld \n", shmem_my_pe(), channel->produced, channel->delivered);
   bool partial = false;
   if (area->next < area->limit) {
     uint64_t mask = (UINT64_C(1) << self->abundance) - 1;
     buffer_t* buffer = porter_outbuf(self, dest, channel->produced & mask);
     partial = (area->next != buffer->data);
-    fprintf(fp, "pe: %ld, produced & mask: %ld, delivered: %ld, partial: %d \n", shmem_my_pe(), channel->produced & mask, partial);
   }
 
   if (wait) {
@@ -317,11 +276,8 @@ porter_setup(porter_t* self, size_t item_size)
 {
   self->item_bytes = item_size;
   self->packet_bytes = porter_packet_size(self->tag_bytes, item_size);
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "Pckt bytes: %ld\n", self->packet_bytes);
   size_t header_bytes = sizeof(buffer_t);
   size_t n_items = (self->buffer_stride - header_bytes) / self->packet_bytes;
-  fprintf(fp, "self->buffer_stride : %ld - header_bytes: %ld\n", self->buffer_stride, header_bytes);
   self->buffer_bytes = header_bytes + n_items * self->packet_bytes;
 
   long ok = self->_class_->setup(self);
@@ -342,7 +298,6 @@ porter_setup(porter_t* self, size_t item_size)
 
   if (ok) {
     size_t n = self->n_ranks;
-    fprintf(fp, "n_ranks: %ld\n", self->n_ranks);
     for (int i = 0; i < n; i++) {
       buffer_t* buffer = porter_outbuf(self, i, 0);
       area_t* area = &self->send_areas[i];
@@ -361,7 +316,6 @@ porter_setup(porter_t* self, size_t item_size)
     self->drained = false;
     self->n_urgent = 0;
     self->phase = self->my_rank;
-    fprintf(fp, "my_rank: %ld\n", self->my_rank);
     self->send_count = 0;
     self->sync_count = 0;
     self->byte_count = 0;
@@ -456,14 +410,8 @@ bool
 porter_advance(porter_t* self, bool done)
 {
   if (!self->endgame) {
-    if (!self->waiting) {
-      FILE *fp = fopen("print-shubh.txt", "a+");
-      fprintf(fp, "phase\n");
-    }
     if (self->waiting) {
       int phase = self->phase;
-      FILE *fp = fopen("print-shubh.txt", "a+");
-      fprintf(fp, "phase: %d\n", phase);
       self->phase = (phase+1 < self->n_ranks) ? phase+1 : 0;
       porter_ensure_progress(self, phase);
     }

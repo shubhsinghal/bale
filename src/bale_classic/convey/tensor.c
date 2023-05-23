@@ -146,7 +146,6 @@ static int
 tensor_pull(convey_t* self, void* item, int64_t* from)
 {
   void* source = tensor_upull(self, from);
-  
   if (source == NULL)
     return convey_FAIL;
   memcpy(item, source, self->item_size);
@@ -184,8 +183,6 @@ tensor_advance(convey_t* self, bool done)
 
   const int order = tensor->order;
   // No shortcuts: must advance every porter to ensure progress
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "my_pe() : %d, tensor->n_complete: %d, done:%d \n", shmem_my_pe(), tensor->n_complete, done);
   for (int k = tensor->n_complete; k < order; k++) {
     bool go = porter_advance(tensor->porters[k], done);
     if (!go) {
@@ -195,7 +192,7 @@ tensor_advance(convey_t* self, bool done)
     done = false;
     if (k == order - 1)
       break;
-  
+
     // Try to interleave work in a reasonable way
     for (int loop = 0; loop < 5; loop++) {
       buffer_t* buffer = porter_borrow(tensor->porters[k]);
@@ -226,8 +223,6 @@ tensor_begin(convey_t* self, size_t item_size, size_t align)
   if (item_size == 0)
     return convey_error_ZERO;
   size_t packet_bytes = porter_packet_size(tensor->item_offset, item_size);
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "Item size: %ld, Packet size: %ld, Tenosr max_bytes: %ld, Tneosr item offset: %ld\n", item_size, packet_bytes, tensor->max_bytes, tensor->item_offset);
   if (packet_bytes > tensor->max_bytes)
     return convey_error_OFLO;
 
@@ -377,9 +372,6 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
   const bool shrink = ((MATRIX_REMOTE_HOP ? n_rows : n_local) <= 256) &&
     !(options & (convey_opt_COMPRESS | convey_opt_STANDARD));
 
-  FILE *fp = fprintf("print-shubh.txt", "a+");
-  fprintf(fp, "shrink: %d\n", shrink);
-
   tensor_t* matrix = malloc(sizeof(tensor_t));
   int32_t* friends[2];
   friends[0] = malloc(n_local * sizeof(uint32_t));
@@ -398,7 +390,6 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
     .convey = *base, .order = 2,
     .n_local = n_local, .router = &matrix_route,
   };
-  fprintf(fp, "MATRIX_REMOTE_HOP: %d\n", MATRIX_REMOTE_HOP);
   matrix->tag_bytes[MATRIX_REMOTE_HOP] = t;
   matrix->tag_bytes[MATRIX_REMOTE_HOP ^ 1] = 4;
   matrix->div_local = _divbymul32_prep(n_local);

@@ -89,7 +89,6 @@ putp_scan_receipts(put_porter_t* putp)
   bool stuck[n_ranks];
   memset(stuck, 0, n_ranks);
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
   // Compress the current pending list and create set
   int n = putp->n_pending, k = 0;
   for (int i = 0; i < n; i++) {
@@ -97,11 +96,10 @@ putp_scan_receipts(put_porter_t* putp)
     if (source >= 0) {
       putp->pending[k++] = source;
       stuck[source] = true;
-      fprintf(fp, "my_pe(): %ld, stuck-source: %d\n", shmem_my_pe(), source);
     }
   }
   int n_stuck = k;
-  fprintf(fp, "my_pe(): %ld, n_stuck %d\n", shmem_my_pe(), n_stuck);
+
   // Traverse the incoming buffers (perhaps in a better order?)
   int n_drained = 0;
   for (int source = 0; source < n_ranks; source++) {
@@ -109,18 +107,14 @@ putp_scan_receipts(put_porter_t* putp)
       continue;
     long long disposed = putp->disposed[source];
     uint64_t received = putp->received[source];  // atomic_load
-    if ((received >> 1) > disposed) {
+    if ((received >> 1) > disposed)
       putp->pending[k++] = source;
-      fprintf(fp, "my_pe(): %ld, source-pending: %d\n", shmem_my_pe(), source);
-    }
-    else {
-       n_drained += (received & 1);
-       fprintf(fp, "my_pe(): %ld, n_drained: %d\n", shmem_my_pe(), source);
-    }
+    else
+      n_drained += (received & 1);
   }
 
   self->drained = (n_drained == self->n_ranks);
-  putp->n_pending = k; 
+  putp->n_pending = k;
   // Work on new buffers if possible, otherwise start over?
   // self->i_pending = (n_stuck < k) ? n_stuck : 0;
   putp->i_pending = 0;
@@ -158,8 +152,6 @@ static buffer_t*
 putp_borrow(porter_t* self)
 {
   put_porter_t* putp = (put_porter_t*) self;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "my_pe(): %ld, i_pending: %d, n_pending: %d\n", shmem_my_pe(), putp->i_pending, putp->n_pending);
   if (putp->i_pending == putp->n_pending)
     putp_scan_receipts(putp);
   int i = putp->i_pending;
@@ -239,10 +231,7 @@ standard_ready(porter_t* self, int dest, uint64_t count)
 {
   put_porter_t* putp = (put_porter_t*) self;
   const int shift = self->abundance;
-  FILE *fp= fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shift: %d, count: %ld\n", shift, count);
   const uint64_t mask = (UINT64_C(1) << shift) - 1;
-  fprintf(fp, "mask: %ld\n", mask);
   long long* consumed = &putp->consumed[dest << shift];
   return (consumed[count & mask] >= (count >> shift));
 }
@@ -251,10 +240,6 @@ static bool
 standard_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
               buffer_t* buffer, uint64_t signal)
 {
-
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "standard_send: %d\n", dest);
-  fclose(fp);
   put_porter_t* putp = (put_porter_t*) self;
   const int rank = self->my_rank;
   const int pe = putp->friends[dest];
@@ -343,7 +328,6 @@ static bool
 local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
            buffer_t* buffer, uint64_t signal)
 {
-  
   const int rank = self->my_rank;
   const nbrhood_t* nbrhood = ((put_porter_t*)self)->extra;
 
@@ -351,9 +335,6 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   if (n_bytes > 0) {
     char* remote = nbrhood->buffer_ptrs[dest];
     uint64_t index = (rank << self->abundance) + level;
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "local_send: %d, dest: %d, remote += %ld\n", rank, dest, index * self->buffer_stride );
-    fclose(fp);
     remote += index * self->buffer_stride;
     memcpy(remote, buffer, n_bytes);
     self->send_count++;
@@ -572,9 +553,6 @@ porter_new(int n, int32_t relative[n], int my_rank,
   // Symmetric allocations
   PARALLEL_ALLOC(putp, received, alloc, n, atomic_uint64_t);
   PARALLEL_ALLOC(putp, consumed, alloc, n * m, long long);
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "n,m: %d, %d\n", n, m);
-  fclose(fp);
   bool ok = (porter->send_areas && porter->all_sent && porter->channels &&
              (!steady || porter->waiting) && putp->friends && putp->disposed &&
              putp->pending && putp->received && putp->consumed);
@@ -594,12 +572,8 @@ porter_new(int n, int32_t relative[n], int my_rank,
   for (int i = 0; i < n; i++)
     if (relative[i] < 0 || relative[i] >= n_procs)
       putp->friends[i] = relative[i] = -1;
-    else {
+    else
       putp->friends[i] = mpp_rel_to_abs_proc(MPP_COMM_CURR, relative[i]);
-      FILE *fp = fopen("print-shubh.txt", "a+");
-      fprintf(fp, "frinds, relative: %ld, %ld\n", putp->friends[i], relative[i]);
-      fclose(fp);
-    }
 
   // Decide which subclass to use
   const porter_methods_t* methods = local ? local_prepare(porter) :

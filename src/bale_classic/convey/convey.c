@@ -351,9 +351,6 @@ convey_parameters(size_t max_bytes, size_t n_local,
 
   // Try to choose the fastest conveyor, ignoring max_bytes
   const size_t n_procs = PROCS;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "n_local: %d, n_procs: %d", n_local, n_procs);
-  fclose(fp);
   if (n_local > 1 && n_local < n_procs) {
     if (!sync || twohop)
       order = 2;

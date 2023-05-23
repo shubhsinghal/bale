@@ -30,11 +30,8 @@ pivot_mid_##Tag##_##Item(tensor_t* matrix, buffer_t* buffer)
     : 4 * (1 + (Item + 3) / 4);
 #endif
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
   char* packet = buffer->data + buffer->start;
   char* limit = buffer->data + buffer->limit;
-  fprintf(fp, "packet_bytes: %d, packet: %ld, limit:%ld\n", packet_bytes, packet, limit);
-  fclose(fp);
   for (; packet < limit; packet += packet_bytes) {
 #if MATRIX_REMOTE_HOP == 0
     int dest = *(Type*)packet;
