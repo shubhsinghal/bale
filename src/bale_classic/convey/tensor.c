@@ -146,7 +146,9 @@ static int
 tensor_pull(convey_t* self, void* item, int64_t* from)
 {
   void* source = tensor_upull(self, from);
-  if (source == NULL)
+  if (source == NULL) {
+    FILE *fp = fopen("print-shubh.txt", "a+");
+    fprintf(fp, "NULL: source");
     return convey_FAIL;
   memcpy(item, source, self->item_size);
   return convey_OK;
@@ -209,7 +211,6 @@ tensor_advance(convey_t* self, bool done)
     porter_t* porter = remote_porter(tensor);
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
-    fprintf(stderr, "HEY:%d\n\n\n", tensor->stats[convey_SYNCS]);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
   }
   return done ? convey_DONE : convey_OK;
