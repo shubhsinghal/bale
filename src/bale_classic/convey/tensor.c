@@ -209,6 +209,7 @@ tensor_advance(convey_t* self, bool done)
     porter_t* porter = remote_porter(tensor);
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
+    fprintf(stderr, "HEY:%d\n\n\n", tensor->stats[convey_SYNCS]);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
   }
   return done ? convey_DONE : convey_OK;
@@ -423,6 +424,11 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
 
   return matrix;
 }
+
+/*
+int n, int32_t relative[n], int my_rank,
+           size_t tag_bytes, size_t capacity, size_t multiplicity,
+           const convey_alc8r_t* alloc, uint64_t options, int opcode*/
 
 static tensor_t*
 tensor_new(convey_t* base, size_t capacity, size_t n_procs,
