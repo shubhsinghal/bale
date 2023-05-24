@@ -150,6 +150,7 @@ tensor_pull(convey_t* self, void* item, int64_t* from)
     FILE *fp = fopen("print-shubh.txt", "a+");
     fprintf(fp, "NULL: source");
     return convey_FAIL;
+  }
   memcpy(item, source, self->item_size);
   return convey_OK;
 }
