@@ -336,6 +336,11 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
     _prefetch_x(area->next + 96);
     size_t tag_bytes = self->tag_bytes;
+    if(tag_bytes == 1) {
+      FILE *fp = fopen("print-shubh.txt", "a+");
+      fprintf(fp, "tag source PE: %ld\n", tag);
+      fprintf(fp, "tag: %d\n", (uint8_t) tag);
+    }
     switch (tag_bytes) {
     case 1: *(uint8_t*)(area->next) = (uint8_t) tag; break;
     case 2: *(uint16_t*)(area->next) = (uint16_t) tag; break;
