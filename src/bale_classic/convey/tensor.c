@@ -474,12 +474,18 @@ tensor_new(convey_t* base, size_t capacity, size_t n_procs,
   tensor->pivots[0] = tensor_select_pivot_early(t, 0);
   tensor->pivots[1] = tensor_select_pivot_late(t, 0);
 
-  for (int i = 0; i < n_local; i++)
+  FILE *fp = fopen("print-shubh.txt", "a+");
+
+  for (int i = 0; i < n_local; i++) {
     friends[0][i] = friends[2][i] = my_proc - me[0] + i;
-  for (int j = 0; j < n_middle; j++)
+    fprintf(fp, "my_pe: %ld, frineds[0]: %ld\n", shmem_my_pe(), friends[0][i]);
+  }
+  for (int j = 0; j < n_middle; j++) {
     friends[1][j] = j * squared + n_local * me[0] + me[1];
+    fprintf(fp, "my_pe: %ld, frineds[1]: %ld\n", shmem_my_pe(), friends[1][j]);
+  }
   tensor->porters[0] = porter_new(n_local, friends[0], me[0], 4, capacity, n_buffers,
-                                  alloc, options | porter_opt_LOCAL, CONVEY_SEND_0);
+                                  alloc, options | porter_opt_LOCAL, CONVEY_SEND_0);  
   tensor->porters[1] = porter_new(n_middle, friends[1], me[2], t, capacity, n_buffers,
                                   alloc, options, CONVEY_SEND_1);
   tensor->porters[2] = porter_new(n_local, friends[2], me[0], 4, capacity, n_buffers,
