@@ -475,8 +475,6 @@ tensor_new(convey_t* base, size_t capacity, size_t n_procs,
   tensor->pivots[0] = tensor_select_pivot_early(t, 0);
   tensor->pivots[1] = tensor_select_pivot_late(t, 0);
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-
   for (int i = 0; i < n_local; i++) {
     friends[0][i] = friends[2][i] = my_proc - me[0] + i;
     fprintf(fp, "my_pe: %ld, frineds[0]: %ld\n", shmem_my_pe(), friends[0][i]);
