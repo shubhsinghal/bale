@@ -444,7 +444,8 @@ tensor_new(convey_t* base, size_t capacity, size_t n_procs,
   if (n_local > 256)
     CONVEY_REJECT(quiet, "number of local PEs is too large");
   const bool shrink = !(options & (convey_opt_COMPRESS | convey_opt_STANDARD));
-
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "shrink : %d\n", shrink);
   tensor_t* tensor = malloc(sizeof(tensor_t));
   int32_t* friends[3];
   friends[0] = malloc(n_local * sizeof(uint32_t));
