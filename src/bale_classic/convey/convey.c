@@ -416,8 +416,8 @@ convey_parameters(size_t max_bytes, size_t n_local,
   *n_buffers_ = n_buffers;
   *sync_ = sync;
   *order_ = order;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "capacity: %ld, n_buffers: %ld, sync: %d, order: %ld, max_bytes: %ld\n", capacity, n_buffers, sync, order, max_bytes);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(stderr, "capacity: %ld, n_buffers: %ld, sync: %d, order: %ld, max_bytes: %ld\n", capacity, n_buffers, sync, order, max_bytes);
 }
 
 static const uint64_t common_options = convey_opt_RECKLESS | convey_opt_DYNAMIC |
