@@ -163,7 +163,6 @@ porter_try_send(porter_t* self, int dest)
     area->next = buffer->data;
     area->limit = (char*)buffer + self->buffer_bytes;
   }
-
   // Return true if there is nothing left to send
   return final;
 }
@@ -190,6 +189,9 @@ porter_ensure_progress(porter_t* self, int dest)
     buffer_t* buffer = porter_outbuf(self, dest, channel->produced & mask);
     partial = (area->next != buffer->data);
   }
+
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "partial: %d, final: %d\n", partial, final);
 
   if (wait) {
     if (!full && partial)
