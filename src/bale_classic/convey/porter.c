@@ -191,7 +191,7 @@ porter_ensure_progress(porter_t* self, int dest)
   }
 
   FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "partial: %d, final: %d\n", partial, final);
+  fprintf(fp, "partial: %d, full: %d\n", partial, full);
 
   if (wait) {
     if (!full && partial)
