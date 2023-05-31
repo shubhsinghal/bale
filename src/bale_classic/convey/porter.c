@@ -146,6 +146,8 @@ porter_try_send(porter_t* self, int dest)
     emitted++;  // @emitted
   }
   channel->emitted = emitted;
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "my_pe(): %ld, delivered: %ld\n", shmem_my_pe(), delivered);
 
   // In the endgame, we advance to an empty buffer if we have already
   // emitted all the buffers but did not signal completion.  In this case,
