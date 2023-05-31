@@ -157,7 +157,7 @@ porter_try_send(porter_t* self, int dest)
   const uint64_t mask = (UINT64_C(1) << self->abundance) - 1;
   bool drive = !self->endgame || (emitted == produced && !final);
   area_t* area = &self->send_areas[dest];
-  if (drive && produced <= delivered && area->next == area->limit) {
+  if (drive && produced <= delivered + mask && area->next == area->limit) {
     // This code "opens" a new buffer
     buffer_t* buffer = porter_outbuf(self, dest, produced & mask);
     area->next = buffer->data;
