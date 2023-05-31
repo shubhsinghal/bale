@@ -190,8 +190,8 @@ porter_ensure_progress(porter_t* self, int dest)
     partial = (area->next != buffer->data);
   }
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "partial: %d, full: %d\n", partial, full);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(stderr, "partial: %d, full: %d\n", partial, full);
 
   if (wait) {
     if (!full && partial)
