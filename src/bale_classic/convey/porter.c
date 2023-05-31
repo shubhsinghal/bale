@@ -193,7 +193,7 @@ porter_ensure_progress(porter_t* self, int dest)
   }
 
   //FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(stderr, "partial: %d, full: %d\n", partial, full);
+  fprintf(stderr, "my_shmem: %d, partial: %d, full: %d\n", shmem_my_pe(), partial, full);
 
   if (wait) {
     if (!full && partial)
