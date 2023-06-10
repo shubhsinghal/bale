@@ -233,6 +233,8 @@ tensor_begin(convey_t* self, size_t item_size, size_t align)
 
   self->item_size = item_size;
   size_t header_bytes = tensor->item_offset;
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "header_bytes: %ld\n", header_bytes);
   if (header_bytes == 0)
     header_bytes = sizeof(buffer_t);
   bool ok = true;
@@ -552,6 +554,8 @@ convey_new_tensor(size_t capacity, int order, size_t n_local, size_t n_buffers,
     return NULL;
 
   tensor->accelerate = reckless && !standard;
+  FILE *fp = fopen("print-shubh.txt", "a+");
+  fprintf(fp, "accelerate: %d\n", tensor->accelerate);
   tensor->item_offset = tensor->tag_bytes[order - 1];
   tensor->max_bytes = capacity;
   tensor->comm = MPP_COMM_CURR;
