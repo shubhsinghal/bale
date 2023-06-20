@@ -194,7 +194,7 @@ tensor_advance(convey_t* self, bool done)
       break;
 
     // Try to interleave work in a reasonable way
-    for (int loop = 0; loop < 5; loop++) {
+    for (int loop = 0; loop < 2; loop++) {
       buffer_t* buffer = porter_borrow(tensor->porters[k]);
       if (!buffer)
         break;
