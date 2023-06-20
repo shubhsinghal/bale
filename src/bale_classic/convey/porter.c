@@ -146,8 +146,6 @@ porter_try_send(porter_t* self, int dest)
     emitted++;  // @emitted
   }
   channel->emitted = emitted;
-  //FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(stderr, "my_pe(): %d, delivered: %ld, emitted: %d, produced: %d, dest: %d\n\n", shmem_my_pe(), delivered, emitted, produced, dest);
 
   // In the endgame, we advance to an empty buffer if we have already
   // emitted all the buffers but did not signal completion.  In this case,
@@ -162,10 +160,9 @@ porter_try_send(porter_t* self, int dest)
     buffer_t* buffer = porter_outbuf(self, dest, produced & mask);
     area->next = buffer->data;
     area->limit = (char*)buffer + self->buffer_bytes;
-    fprintf(stderr, "Reset AREA\n\n\n");
   }
+
   // Return true if there is nothing left to send
-  fprintf(stderr, "try_send return value: %d\n", final);
   return final;
 }
 
@@ -191,9 +188,6 @@ porter_ensure_progress(porter_t* self, int dest)
     buffer_t* buffer = porter_outbuf(self, dest, channel->produced & mask);
     partial = (area->next != buffer->data);
   }
-
-  //FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(stderr, "my_shmem: %d, partial: %d, full: %d\n", shmem_my_pe(), partial, full);
 
   if (wait) {
     if (!full && partial)
@@ -342,11 +336,6 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
     DEBUG_PRINT("push  %08x to %u\n", *(uint32_t*)item, dest);
     _prefetch_x(area->next + 96);
     size_t tag_bytes = self->tag_bytes;
-    // if(tag_bytes == 1) {
-    //   //FILE *fp = fopen("print-shubh.txt", "a+");
-    //   fprintf(fp, "tag source PE: %ld\n", tag);
-    //   fprintf(fp, "tag: %d\n", (uint8_t) tag);
-    // }
     switch (tag_bytes) {
     case 1: *(uint8_t*)(area->next) = (uint8_t) tag; break;
     case 2: *(uint16_t*)(area->next) = (uint16_t) tag; break;
@@ -361,10 +350,8 @@ porter_push(porter_t* self, uint64_t tag, const void* item, int dest)
       porter_try_send(self, dest);
     }
   }
-  else {
-    fprintf(stderr, "my_pe: %d, dest: %d, Area is full\n\n", shmem_my_pe(), dest);
+  else
     porter_try_send(self, dest);
-  }
   return room;
 }
 
@@ -374,13 +361,10 @@ porter_epush(porter_t* self, uint32_t tag, uint32_t descr,
 {
   area_t* area = &self->send_areas[dest];
   size_t n_quads = PORTER_QUADS(descr);
-  //FILE *fp = fopen("print-shubh.txt", "a+");
-  //fprintf(fp, "n_quads: %ld\n", n_quads);
   bool room = (area->next + 4 * n_quads <= area->limit);
 
   if (room) {
     size_t length = PORTER_BYTES(descr);
-    //fprintf(fp, "length: %ld\n", length);
     DEBUG_PRINT("epush %zu:%08x to %u\n", length,
                 first_uint32(length, item), dest);
     _prefetch_x(area->next + 96);
@@ -391,12 +375,10 @@ porter_epush(porter_t* self, uint32_t tag, uint32_t descr,
     area->next += 4 * n_quads;
     // Decide whether the buffer is full
     bool ticket = PORTER_TICKET(descr);
-    //fprintf(fp, "ticket: %d\n", ticket);
     if (ticket) {
       channel_t* channel = &self->channels[dest];
       self->n_urgent += (channel->urgent <= channel->delivered);
       channel->urgent = channel->produced + 1;
-      //fprintf(fp, "channel->urgent: %ld\n", channel->urgent);
     }
     if (ticket || area->next + self->packet_bytes >= area->limit) {
       porter_close_buffer(self, dest, area);

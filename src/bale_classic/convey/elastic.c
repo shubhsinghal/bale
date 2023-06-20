@@ -67,8 +67,6 @@ alloc_monster_buffers(elastic_t* elastic)
   }
   size_t n_bytes = elastic->max_size;
   convey_alc8r_t* alloc = &elastic->alloc;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "n_bytes in alloc elastic.c: %ld\n", n_bytes);
   PARALLEL_ALLOC(elastic, outgoing, alloc, n_bytes, char);
   PARALLEL_ALLOC(elastic, incoming, alloc, n_bytes, char);
   return elastic->outgoing && elastic->incoming;
@@ -546,13 +544,10 @@ convey_new_etensor(size_t buffer_bytes, size_t monster_bytes,
   // Must ensure that the buffers are at least of size buffer_bytes.
   uint64_t packet_quads = 4;
   uint64_t capacity = 1 + (buffer_bytes - 1) / (4 * packet_quads);
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "capacity: %ld\n", capacity);
   if ((capacity * packet_quads) >> 29)
     CONVEY_REJECT(quiet, "buffer_bytes is too large");
   size_t big_bytes = (capacity * packet_quads - 2) * sizeof(uint32_t);
   big_bytes = MIN(big_bytes, monster_bytes);
-  fprintf(fp, "big-bytes: %ld\n", big_bytes);
 
   // Build the underlying tensor conveyor, without compression
   uint64_t tensor_opts = options - (options & convey_opt_COMPRESS);
