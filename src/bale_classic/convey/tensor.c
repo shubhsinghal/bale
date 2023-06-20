@@ -147,8 +147,8 @@ tensor_pull(convey_t* self, void* item, int64_t* from)
 {
   void* source = tensor_upull(self, from);
   if (source == NULL) {
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "NULL: source");
+    //FILE *fp = fopen("print-shubh.txt", "a+");
+    //fprintf(fp, "NULL: source");
     return convey_FAIL;
   }
   memcpy(item, source, self->item_size);
@@ -213,8 +213,8 @@ tensor_advance(convey_t* self, bool done)
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
-    FILE *fp = fopen("print-shubh.txt", "a+");
-    fprintf(fp, "sync_bytes: %d, send_bytes: %d, byte_count: %d\n", tensor->stats[convey_SYNCS], tensor->stats[convey_COMMS], tensor->stats[convey_BYTES]);
+    //FILE *fp = fopen("print-shubh.txt", "a+");
+    //fprintf(fp, "sync_bytes: %d, send_bytes: %d, byte_count: %d\n", tensor->stats[convey_SYNCS], tensor->stats[convey_COMMS], tensor->stats[convey_BYTES]);
   }
   return done ? convey_DONE : convey_OK;
 }
@@ -233,8 +233,8 @@ tensor_begin(convey_t* self, size_t item_size, size_t align)
 
   self->item_size = item_size;
   size_t header_bytes = tensor->item_offset;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "header_bytes: %ld\n", header_bytes);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  //fprintf(fp, "header_bytes: %ld\n", header_bytes);
   if (header_bytes == 0)
     header_bytes = sizeof(buffer_t);
   bool ok = true;
@@ -379,13 +379,13 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
   const bool shrink = ((MATRIX_REMOTE_HOP ? n_rows : n_local) <= 256) &&
     !(options & (convey_opt_COMPRESS | convey_opt_STANDARD));
 
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shrink:%d\n", shrink);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  //fprintf(fp, "shrink:%d\n", shrink);
   tensor_t* matrix = malloc(sizeof(tensor_t));
   int32_t* friends[2];
   friends[0] = malloc(n_local * sizeof(uint32_t));
   friends[1] = malloc(n_rows * sizeof(uint32_t));
-  fprintf(fp, "n_rows:%d\n", n_rows);
+  //fprintf(fp, "n_rows:%d\n", n_rows);
   if (! (matrix && friends[0] && friends[1])) {
     free(friends[1]);
     free(friends[0]);
@@ -395,13 +395,13 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
 
   size_t my_proc = MY_PROC;
   uint32_t me[2] = { my_proc % n_local, my_proc / n_local };
-  fprintf(fp, "my_pe():%ld, me[0]: %d, me[1]:%d\n", MY_PROC, me[0], me[1]);
+  //fprintf(fp, "my_pe():%ld, me[0]: %d, me[1]:%d\n", MY_PROC, me[0], me[1]);
   const size_t t = (shrink ? 1 : 4);
   *matrix = (tensor_t) {
     .convey = *base, .order = 2,
     .n_local = n_local, .router = &matrix_route,
   };
-  fprintf(fp, "matrix-hop:%ld\n", MATRIX_REMOTE_HOP);
+  //fprintf(fp, "matrix-hop:%ld\n", MATRIX_REMOTE_HOP);
   matrix->tag_bytes[MATRIX_REMOTE_HOP] = t;
   matrix->tag_bytes[MATRIX_REMOTE_HOP ^ 1] = 4;
   matrix->div_local = _divbymul32_prep(n_local);
@@ -446,8 +446,8 @@ tensor_new(convey_t* base, size_t capacity, size_t n_procs,
   if (n_local > 256)
     CONVEY_REJECT(quiet, "number of local PEs is too large");
   const bool shrink = !(options & (convey_opt_COMPRESS | convey_opt_STANDARD));
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "shrink : %d\n", shrink);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  //fprintf(fp, "shrink : %d\n", shrink);
   tensor_t* tensor = malloc(sizeof(tensor_t));
   int32_t* friends[3];
   friends[0] = malloc(n_local * sizeof(uint32_t));
@@ -479,11 +479,11 @@ tensor_new(convey_t* base, size_t capacity, size_t n_procs,
 
   for (int i = 0; i < n_local; i++) {
     friends[0][i] = friends[2][i] = my_proc - me[0] + i;
-    fprintf(fp, "my_pe: %ld, frineds[0]: %ld\n", shmem_my_pe(), friends[0][i]);
+    //fprintf(fp, "my_pe: %ld, frineds[0]: %ld\n", shmem_my_pe(), friends[0][i]);
   }
   for (int j = 0; j < n_middle; j++) {
     friends[1][j] = j * squared + n_local * me[0] + me[1];
-    fprintf(fp, "my_pe: %ld, frineds[1]: %ld\n", shmem_my_pe(), friends[1][j]);
+    //fprintf(fp, "my_pe: %ld, frineds[1]: %ld\n", shmem_my_pe(), friends[1][j]);
   }
   tensor->porters[0] = porter_new(n_local, friends[0], me[0], 4, capacity, n_buffers,
                                   alloc, options | porter_opt_LOCAL, CONVEY_SEND_0);  
@@ -554,8 +554,8 @@ convey_new_tensor(size_t capacity, int order, size_t n_local, size_t n_buffers,
     return NULL;
 
   tensor->accelerate = reckless && !standard;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "accelerate: %d\n", tensor->accelerate);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  //fprintf(fp, "accelerate: %d\n", tensor->accelerate);
   tensor->item_offset = tensor->tag_bytes[order - 1];
   tensor->max_bytes = capacity;
   tensor->comm = MPP_COMM_CURR;

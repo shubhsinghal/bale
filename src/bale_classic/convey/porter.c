@@ -374,13 +374,13 @@ porter_epush(porter_t* self, uint32_t tag, uint32_t descr,
 {
   area_t* area = &self->send_areas[dest];
   size_t n_quads = PORTER_QUADS(descr);
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "n_quads: %ld\n", n_quads);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  //fprintf(fp, "n_quads: %ld\n", n_quads);
   bool room = (area->next + 4 * n_quads <= area->limit);
 
   if (room) {
     size_t length = PORTER_BYTES(descr);
-    fprintf(fp, "length: %ld\n", length);
+    //fprintf(fp, "length: %ld\n", length);
     DEBUG_PRINT("epush %zu:%08x to %u\n", length,
                 first_uint32(length, item), dest);
     _prefetch_x(area->next + 96);
@@ -391,12 +391,12 @@ porter_epush(porter_t* self, uint32_t tag, uint32_t descr,
     area->next += 4 * n_quads;
     // Decide whether the buffer is full
     bool ticket = PORTER_TICKET(descr);
-    fprintf(fp, "ticket: %d\n", ticket);
+    //fprintf(fp, "ticket: %d\n", ticket);
     if (ticket) {
       channel_t* channel = &self->channels[dest];
       self->n_urgent += (channel->urgent <= channel->delivered);
       channel->urgent = channel->produced + 1;
-      fprintf(fp, "channel->urgent: %ld\n", channel->urgent);
+      //fprintf(fp, "channel->urgent: %ld\n", channel->urgent);
     }
     if (ticket || area->next + self->packet_bytes >= area->limit) {
       porter_close_buffer(self, dest, area);

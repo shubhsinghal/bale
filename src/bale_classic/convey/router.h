@@ -25,8 +25,8 @@ matrix_route(tensor_t* matrix, int64_t pe)
   uint32_t dest = pe;
   uint32_t upper = _divbymul32(dest, matrix->div_local);
   uint32_t lower = dest - matrix->n_local * upper;
-  FILE *fp = fopen("print-shubh.txt", "a+");
-  fprintf(fp, "lower: %d\n", lower);
+  //FILE *fp = fopen("print-shubh.txt", "a+");
+  //fprintf(fp, "lower: %d\n", lower);
 #if MATRIX_REMOTE_HOP == 0
   return (route_t) { .tag = lower, .next = upper };
 #else
