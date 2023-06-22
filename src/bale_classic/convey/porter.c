@@ -147,7 +147,7 @@ porter_try_send(porter_t* self, int dest)
   }
   channel->emitted = emitted;
 
-  fprintf(stderr, "pe: %ld, dest: %ld, produced: %ld, delivered: %ld, emitted: %ld\n", shmem_my_pe(), dest, produced, delivered, emitted);
+  //fprintf(stderr, "pe: %ld, dest: %ld, produced: %ld, delivered: %ld, emitted: %ld\n", shmem_my_pe(), dest, produced, delivered, emitted);
 
   // In the endgame, we advance to an empty buffer if we have already
   // emitted all the buffers but did not signal completion.  In this case,

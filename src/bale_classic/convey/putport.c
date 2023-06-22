@@ -345,6 +345,7 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   // Need local address of remote 'received' array
   atomic_uint64_t* notify = nbrhood->signal_ptrs[dest] + rank;
   *notify = signal;  // atomic_store
+  fprintf(stderr, "pe: %ld, signal: %ld\n", shmem_my_pe(), signal);
   return true;
 }
 
