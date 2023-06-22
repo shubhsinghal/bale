@@ -107,6 +107,7 @@ putp_scan_receipts(put_porter_t* putp)
       continue;
     long long disposed = putp->disposed[source];
     uint64_t received = putp->received[source];  // atomic_load
+    fprintf(stderr, "pe: %ld, disposed: %ld, receiced: %ld, source: %d\n", shmem_my_pe(), disposed, received, source);
     if ((received >> 1) > disposed)
       putp->pending[k++] = source;
     else
