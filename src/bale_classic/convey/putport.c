@@ -107,7 +107,9 @@ putp_scan_receipts(put_porter_t* putp)
       continue;
     long long disposed = putp->disposed[source];
     uint64_t received = putp->received[source];  // atomic_load
-    fprintf(stderr, "pe: %ld, disposed: %ld, receiced: %ld, source: %d\n", shmem_my_pe(), disposed, received, source);
+    if(pe != source) {
+      fprintf(stderr, "pe: %ld, disposed: %ld, receiced: %ld, source: %d\n", shmem_my_pe(), disposed, received, source);
+    }
     if ((received >> 1) > disposed)
       putp->pending[k++] = source;
     else
@@ -345,7 +347,9 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   // Need local address of remote 'received' array
   atomic_uint64_t* notify = nbrhood->signal_ptrs[dest] + rank;
   *notify = signal;  // atomic_store
-  fprintf(stderr, "pe: %ld, signal: %ld\n", shmem_my_pe(), signal);
+  if(pe != dest) {
+    fprintf(stderr, "pe: %ld, signal: %ld\n", shmem_my_pe(), signal);
+  }
   return true;
 }
 
