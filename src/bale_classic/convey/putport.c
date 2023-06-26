@@ -165,7 +165,7 @@ putp_borrow(porter_t* self)
   int i = putp->i_pending;
   struct timeval tt;
   gettimeofday(&tt, NULL);
-  fprintf(stderr, "tt: %ld, pe: %ld, i_pending: %ld, n_pending: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), i, putp->n_pending);
+  //fprintf(stderr, "tt: %ld, pe: %ld, i_pending: %ld, n_pending: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), i, putp->n_pending);
   if (i == putp->n_pending)
     return NULL;
 
@@ -222,6 +222,7 @@ putp_reset(porter_t* self)
 static void
 putp_demolish(porter_t* self)
 {
+  fprintf(stderr, "DEMOLISH\n\n");
   put_porter_t* putp = (put_porter_t*) self;
   if (putp->extra)
     (*self->_class_->release)(putp->extra);
