@@ -132,6 +132,8 @@ putp_scan_receipts(put_porter_t* putp)
 static bool
 putp_setup(porter_t* self)
 {
+
+  fprintf(stderr, "SETTINGUP pull obj for porter\n\n");
   bool ok = !self->dynamic || porter_grab_buffers(self);
 
   if (ok) {
@@ -161,6 +163,9 @@ putp_borrow(porter_t* self)
   if (putp->i_pending == putp->n_pending)
     putp_scan_receipts(putp);
   int i = putp->i_pending;
+  struct timeval tt;
+  gettimeofday(&tt, NULL);
+  fprintf(stderr, "tt: %ld, pe: %ld, i_pending: %ld, n_pending: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), i, putp->n_pending);
   if (i == putp->n_pending)
     return NULL;
 
