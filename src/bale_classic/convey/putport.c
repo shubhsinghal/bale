@@ -111,7 +111,7 @@ putp_scan_receipts(put_porter_t* putp)
     if(shmem_my_pe() != source) {
       struct timeval tt;
       gettimeofday(&tt, NULL);
-      fprintf(stderr, "time: %ld, pe: %ld, disposed: %ld, receiced: %ld, source: %d\n", tt.tv_sec*1000000 + tt.tv_usec,  shmem_my_pe(), disposed, received, source);
+      fprintf(stderr, "time: %ld, pe: %d, disposed: %lld, receiced: %ld, source: %d\n", tt.tv_sec*1000000 + tt.tv_usec,  shmem_my_pe(), disposed, received, source);
     }
     if ((received >> 1) > disposed)
       putp->pending[k++] = source;
@@ -359,7 +359,7 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   if(shmem_my_pe() != dest) {
     struct timeval tt;
     gettimeofday(&tt, NULL);
-    fprintf(stderr, "tt: %ld, pe: %ld, signal: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), signal);
+    fprintf(stderr, "tt: %ld, pe: %d, signal: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), signal);
   }
   return true;
 }
