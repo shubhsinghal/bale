@@ -86,6 +86,7 @@ static void
 putp_scan_receipts(put_porter_t* putp)
 {
   porter_t* self = &putp->porter;
+  fprintf(stderr,  "Endgame: %d", self->endgame);
   const int n_ranks = self->n_ranks;
   bool stuck[n_ranks];
   memset(stuck, 0, n_ranks);
@@ -111,7 +112,7 @@ putp_scan_receipts(put_porter_t* putp)
     if(shmem_my_pe() != source) {
       struct timeval tt;
       gettimeofday(&tt, NULL);
-      fprintf(stderr, "time: %ld, pe: %d, disposed: %lld, receiced: %ld, source: %d\n", tt.tv_sec*1000000 + tt.tv_usec,  shmem_my_pe(), disposed, received, source);
+      //fprintf(stderr, "time: %ld, pe: %d, disposed: %lld, receiced: %ld, source: %d\n", tt.tv_sec*1000000 + tt.tv_usec,  shmem_my_pe(), disposed, received, source);
     }
     if ((received >> 1) > disposed)
       putp->pending[k++] = source;
@@ -133,7 +134,7 @@ static bool
 putp_setup(porter_t* self)
 {
 
-  fprintf(stderr, "SETTINGUP pull obj for porter\n\n");
+  // fprintf(stderr, "SETTINGUP pull obj for porter\n\n");
   bool ok = !self->dynamic || porter_grab_buffers(self);
 
   if (ok) {
