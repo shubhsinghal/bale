@@ -86,7 +86,7 @@ static void
 putp_scan_receipts(put_porter_t* putp)
 {
   porter_t* self = &putp->porter;
-  fprintf(stderr,  "Endgame: %d", self->endgame);
+  //fprintf(stderr,  "Endgame: %d", self->endgame);
   const int n_ranks = self->n_ranks;
   bool stuck[n_ranks];
   memset(stuck, 0, n_ranks);
@@ -223,7 +223,7 @@ putp_reset(porter_t* self)
 static void
 putp_demolish(porter_t* self)
 {
-  fprintf(stderr, "DEMOLISH\n\n");
+  //fprintf(stderr, "DEMOLISH\n\n");
   put_porter_t* putp = (put_porter_t*) self;
   if (putp->extra)
     (*self->_class_->release)(putp->extra);
@@ -360,7 +360,7 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   if(shmem_my_pe() != dest) {
     struct timeval tt;
     gettimeofday(&tt, NULL);
-    fprintf(stderr, "tt: %ld, pe: %d, signal: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), signal);
+    //fprintf(stderr, "tt: %ld, pe: %d, signal: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), signal);
   }
   return true;
 }
