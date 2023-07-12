@@ -164,6 +164,7 @@ putp_borrow(porter_t* self)
   if (putp->i_pending == putp->n_pending)
     putp_scan_receipts(putp);
   int i = putp->i_pending;
+  int nn = putp->n_pending;
   struct timeval tt;
   gettimeofday(&tt, NULL);
   //fprintf(stderr, "tt: %ld, pe: %ld, i_pending: %ld, n_pending: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), i, putp->n_pending);
