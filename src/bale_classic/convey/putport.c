@@ -11,7 +11,6 @@
 #include <string.h>
 #include "porter_impl.h"
 #include "private.h"
-#include <sys/time.h>
 
 // HAVE_USABLE_ATOMICS implies SHMEM (not UPC)
 #if HAVE_STDATOMIC_H && HAVE_USABLE_ATOMICS && (__STDC_NO_ATOMICS__ != 1)
@@ -86,7 +85,6 @@ static void
 putp_scan_receipts(put_porter_t* putp)
 {
   porter_t* self = &putp->porter;
-  //fprintf(stderr,  "Endgame: %d", self->endgame);
   const int n_ranks = self->n_ranks;
   bool stuck[n_ranks];
   memset(stuck, 0, n_ranks);
@@ -109,11 +107,6 @@ putp_scan_receipts(put_porter_t* putp)
       continue;
     long long disposed = putp->disposed[source];
     uint64_t received = putp->received[source];  // atomic_load
-    if(shmem_my_pe() != source) {
-      struct timeval tt;
-      gettimeofday(&tt, NULL);
-      //fprintf(stderr, "time: %ld, pe: %d, disposed: %lld, receiced: %ld, source: %d\n", tt.tv_sec*1000000 + tt.tv_usec,  shmem_my_pe(), disposed, received, source);
-    }
     if ((received >> 1) > disposed)
       putp->pending[k++] = source;
     else
@@ -133,8 +126,6 @@ putp_scan_receipts(put_porter_t* putp)
 static bool
 putp_setup(porter_t* self)
 {
-
-  // fprintf(stderr, "SETTINGUP pull obj for porter\n\n");
   bool ok = !self->dynamic || porter_grab_buffers(self);
 
   if (ok) {
@@ -164,10 +155,6 @@ putp_borrow(porter_t* self)
   if (putp->i_pending == putp->n_pending)
     putp_scan_receipts(putp);
   int i = putp->i_pending;
-  int nn = putp->n_pending;
-  struct timeval tt;
-  gettimeofday(&tt, NULL);
-  //fprintf(stderr, "tt: %ld, pe: %ld, i_pending: %ld, n_pending: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), i, putp->n_pending);
   if (i == putp->n_pending)
     return NULL;
 
@@ -224,7 +211,6 @@ putp_reset(porter_t* self)
 static void
 putp_demolish(porter_t* self)
 {
-  //fprintf(stderr, "DEMOLISH\n\n");
   put_porter_t* putp = (put_porter_t*) self;
   if (putp->extra)
     (*self->_class_->release)(putp->extra);
@@ -358,11 +344,6 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   // Need local address of remote 'received' array
   atomic_uint64_t* notify = nbrhood->signal_ptrs[dest] + rank;
   *notify = signal;  // atomic_store
-  if(shmem_my_pe() != dest) {
-    struct timeval tt;
-    gettimeofday(&tt, NULL);
-    //fprintf(stderr, "tt: %ld, pe: %d, signal: %ld\n", tt.tv_sec*1000000 + tt.tv_usec, shmem_my_pe(), signal);
-  }
   return true;
 }
 
