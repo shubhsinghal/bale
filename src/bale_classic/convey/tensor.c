@@ -403,7 +403,7 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
   for (int i = 0; i < 2; i++) {
     matrix->porters[i] = (i == MATRIX_REMOTE_HOP)
       ? porter_new(n_rows, friends[1], me[1], t, capacity, n_buffers, alloc,
-               options | porter_opt_LOCAL, CONVEY_SEND_0);
+               options | porter_opt_LOCAL, CONVEY_SEND_0)
       : porter_new(n_local, friends[0], me[0], 4, capacity, n_buffers, alloc,
                options | porter_opt_LOCAL, CONVEY_SEND_0);
   }    
