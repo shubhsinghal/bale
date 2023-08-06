@@ -519,6 +519,8 @@ convey_new_tensor(size_t capacity, int order, size_t n_local, size_t n_buffers,
       order = 1;
   }
 
+  fprintf(stderr, "%d", order);
+
   convey_t _base = {
     ._class_ = reckless ? &tensor_fast_methods : &tensor_debug_methods,
     .features = steady * convey_STEADY + compress * convey_THRIFTY,
