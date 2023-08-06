@@ -432,7 +432,7 @@ convey_new(size_t max_bytes, size_t n_local,
 
   size_t capacity, n_buffers;
   int sync, order;
-  convey_parameters(max_bytes, n_local/2, &capacity, &n_buffers, &sync, &order);
+  convey_parameters(max_bytes, n_local/3, &capacity, &n_buffers, &sync, &order);
 
   // Build the chosen conveyor
 #if 0
@@ -444,7 +444,7 @@ convey_new(size_t max_bytes, size_t n_local,
     return convey_new_simple(capacity, alloc, NULL,
                              options & (common_options | convey_opt_SCATTER));
   else
-    return convey_new_tensor(capacity, order, n_local/2, n_buffers, alloc,
+    return convey_new_tensor(capacity, order, n_local/3, n_buffers, alloc,
                              options & (common_options | convey_opt_STANDARD |
                                         convey_opt_COMPRESS | convey_opt_BLOCKING));
 }
