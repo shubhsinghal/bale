@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "porter_impl.h"
 #include "private.h"
@@ -140,6 +141,15 @@ porter_try_send(porter_t* self, int dest)
   while (emitted < produced && self->_class_->ready(self, dest, emitted)) {
     final = self->endgame && (emitted == produced - 1);
     bool arrived = porter_send_buffer(self, dest, emitted, final);
+    // if( !(arrived && channel->is_arrived)) {
+    //   // Record the timestamp.
+    //   struct timeval tt = NULL;
+    //   gettimeofday(&tt);
+    //   timersub(tt, (channel->last_stamp),  tt);
+    //   timeradd(&(tt), &(channel->tot_waste_time), &(channel->tot_waste_time));
+    //   gettimeofday(&(channel->last_stamp));
+    // }
+    //channel->is_arrived = arrived;
     delivered += arrived;
     if (arrived)
       porter_record_delivery(self, dest, delivered);

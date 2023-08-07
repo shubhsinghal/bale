@@ -44,6 +44,8 @@ typedef struct channel {
   uint64_t emitted;     // counts outgoing buffers for which sending has begun
   uint64_t delivered;   // counts outgoing buffers actually delivered
   uint64_t urgent;      // if positive, 1 + maximum index of an urgent buffer
+  bool is_arrived;
+  struct timeval tot_waste_time, last_stamp; 
   // Must achieve delivered >= urgent in order to send all tickets.
 } channel_t;
 
