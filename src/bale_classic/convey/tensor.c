@@ -207,7 +207,7 @@ tensor_advance(convey_t* self, bool done)
 
   if (done) {
     porter_t* porter = remote_porter(tensor);
-    FILE *fp = fopen("sstats.txt", "a");
+    FILE *fp = fopen("sstats1.txt", "a");
     fprintf(fp, "my_pe: %d, fail_ratio: %ld\n", shmem_my_pe(), porter_get_stats(porter, 4)*100/porter_get_stats(porter, 3));
     fclose(fp);
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
