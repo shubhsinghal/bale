@@ -454,9 +454,9 @@ porter_get_stats(porter_t* self, int which)
     return self->sync_count;
   else if (which == 2)
     return self->byte_count;
-    else if (which == 3)
+  else if (which == 3)
     return self->tot_push;
-    else if (which == 4)
+  else if (which == 4)
     return self->fail_push;
   else
     return 0;
