@@ -207,10 +207,12 @@ tensor_advance(convey_t* self, bool done)
 
   if (done) {
     porter_t* porter = remote_porter(tensor);
+    FILE *fp = fopen("stats.txt", "a");
+    fprintf(fp, "my_pe: %d, fail_ratio: %ld, succeed-ratio:%ld\n", shmem_my_pe(), porter_get_stats(porter, 4)/porter_get_stats(porter, 3), tensor->stats[convey_PUSHES]/porter_get_stats(porter, 3));
+    fclose(fp);
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
-    //fprintf("my_pe: %ld, push: %ld, pull: %ld\n", shmem_my_pe(), tensor->stats[convey_PUSHES], tensor->stats[convey_PULLS]);
   }
   return done ? convey_DONE : convey_OK;
 }
@@ -404,7 +406,7 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
   for (int i = 0; i < 2; i++) {
     matrix->porters[i] = (i == MATRIX_REMOTE_HOP)
       ? porter_new(n_rows, friends[1], me[1], t, capacity, n_buffers, alloc,
-               options | porter_opt_LOCAL, CONVEY_SEND_0)
+               options, CONVEY_SEND_1)
       : porter_new(n_local, friends[0], me[0], 4, capacity, n_buffers, alloc,
                options | porter_opt_LOCAL, CONVEY_SEND_0);
   }    
@@ -519,8 +521,6 @@ convey_new_tensor(size_t capacity, int order, size_t n_local, size_t n_buffers,
     if (n_local == 1)
       order = 1;
   }
-
-  fprintf(stderr, "%d", order);
 
   convey_t _base = {
     ._class_ = reckless ? &tensor_fast_methods : &tensor_debug_methods,

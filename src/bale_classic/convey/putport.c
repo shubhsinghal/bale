@@ -580,6 +580,8 @@ porter_new(int n, int32_t relative[n], int my_rank,
     (!blocking ? nonblock_prepare(porter) : NULL);
   if (methods != NULL)
     porter->_class_ = methods;
+  porter->fail_push = 0;
+  porter->tot_push = 0;
 
   return porter;
 }

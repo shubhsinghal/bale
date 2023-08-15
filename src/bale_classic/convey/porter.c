@@ -9,7 +9,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "porter_impl.h"
 #include "private.h"
@@ -130,7 +129,7 @@ bool
 porter_try_send(porter_t* self, int dest)
 {
   self->_class_->progress(self, dest);
-
+  self->tot_push += 1;
   channel_t* channel = &self->channels[dest];
   uint64_t produced = channel->produced;
   uint64_t emitted = channel->emitted;
@@ -141,15 +140,9 @@ porter_try_send(porter_t* self, int dest)
   while (emitted < produced && self->_class_->ready(self, dest, emitted)) {
     final = self->endgame && (emitted == produced - 1);
     bool arrived = porter_send_buffer(self, dest, emitted, final);
-    // if( !(arrived && channel->is_arrived)) {
-    //   // Record the timestamp.
-    //   struct timeval tt = NULL;
-    //   gettimeofday(&tt);
-    //   timersub(tt, (channel->last_stamp),  tt);
-    //   timeradd(&(tt), &(channel->tot_waste_time), &(channel->tot_waste_time));
-    //   gettimeofday(&(channel->last_stamp));
-    // }
-    //channel->is_arrived = arrived;
+    if(!arrived) {
+      self->fail_push += 1;
+    }
     delivered += arrived;
     if (arrived)
       porter_record_delivery(self, dest, delivered);
@@ -456,6 +449,10 @@ porter_get_stats(porter_t* self, int which)
     return self->sync_count;
   else if (which == 2)
     return self->byte_count;
+    else if (which == 3)
+    return self->tot_push;
+    else if (which == 4)
+    return self->fail_push;
   else
     return 0;
 }
