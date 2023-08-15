@@ -83,6 +83,11 @@ static bool
 porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
 {
   // Figure out which buffer we are sending
+
+  area_t* area = &self->send_areas[dest];
+  FILE *fp = fopen("sstats1.txt", "a");
+  fprintf(fp, "my_pe: %d, remain: %ld\n", shmem_my_pe(), area->limit - area->next);
+  fclose(fp);
   const int shift = self->abundance;
   uint64_t level = count & ((UINT64_C(1) << shift) - 1);
   buffer_t* buffer = porter_outbuf(self, dest, level);
