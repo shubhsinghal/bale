@@ -140,13 +140,13 @@ porter_try_send(porter_t* self, int dest)
   while (emitted < produced && self->_class_->ready(self, dest, emitted)) {
     final = self->endgame && (emitted == produced - 1);
     bool arrived = porter_send_buffer(self, dest, emitted, final);
-    if(!arrived) {
-      self->fail_push += 1;
-    }
     delivered += arrived;
     if (arrived)
       porter_record_delivery(self, dest, delivered);
     emitted++;  // @emitted
+  }
+  if(channel->emitted == emitted) {
+      self->fail_push += 1;
   }
   channel->emitted = emitted;
 
