@@ -210,9 +210,6 @@ tensor_advance(convey_t* self, bool done)
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
-    FILE *fp = fopen("sstats.txt", "a");
-    fprintf(fp, "my_pe: %d, push: %ld, pull:%ld, advance: %ld\n", shmem_my_pe(), tensor->stats[convey_PUSHES], tensor->stats[convey_PULLS],  tensor->stats[convey_ADVANCES]);
-    fclose(fp);
   }
   return done ? convey_DONE : convey_OK;
 }
