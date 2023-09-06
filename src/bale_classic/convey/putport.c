@@ -427,7 +427,7 @@ nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     const int rank = self->my_rank;
     const int pe = putp->friends[dest];
     buffer_t* remote = porter_inbuf(self, rank, level);
-    fprintf(stderr, "non-");
+    //fprintf(stderr, "non-");
     DEBUG_PRINT("%zu bytes to %d, signal = %lu\n", buffer->limit - buffer->start, pe, signal);
     shmem_putmem_nbi(remote, buffer, n_bytes, pe);
     self->send_count++;
