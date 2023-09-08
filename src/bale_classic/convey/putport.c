@@ -520,7 +520,7 @@ porter_new(int n, int32_t relative[n], int my_rank,
     return NULL;
   const bool dynamic = options & convey_opt_DYNAMIC;
   const bool steady = options & convey_opt_PROGRESS;
-  bool local = options & porter_opt_LOCAL;
+  bool local = false;
   const bool compress = options & convey_opt_COMPRESS;
   const bool blocking = options & convey_opt_BLOCKING;
 
@@ -529,8 +529,8 @@ porter_new(int n, int32_t relative[n], int my_rank,
     return NULL;
   porter_t* porter = &putp->porter;
 
-  FILE *fp = fopen("a.txt", "a");
-  fprintf(fp, "pe: %d, check-point\n", shmem_my_pe());
+  // FILE *fp = fopen("a.txt", "a");
+  // fprintf(fp, "pe: %d, check-point\n", shmem_my_pe());
   //fclose(fp);
 
   if (alloc == NULL)
@@ -556,7 +556,7 @@ porter_new(int n, int32_t relative[n], int my_rank,
   putp->disposed = malloc(n * sizeof(long long));
   putp->pending = malloc(n * sizeof(int32_t));
 
-  fprintf(fp, "pe: %d, check-point2\n", shmem_my_pe());
+  //fprintf(fp, "pe: %d, check-point2\n", shmem_my_pe());
   // Symmetric allocations
   PARALLEL_ALLOC(putp, received, alloc, n, atomic_uint64_t);
   PARALLEL_ALLOC(putp, consumed, alloc, n * m, long long);
@@ -574,7 +574,7 @@ porter_new(int n, int32_t relative[n], int my_rank,
     porter_demolish(porter);
     return NULL;
   }
-  fprintf(fp, "pe: %d, check-point3\n", shmem_my_pe());
+  // fprintf(fp, "pe: %d, check-point3\n", shmem_my_pe());
   // porter_setup() will erase everything
 
   int64_t n_procs = PROCS;
