@@ -520,7 +520,7 @@ porter_new(int n, int32_t relative[n], int my_rank,
     return NULL;
   const bool dynamic = options & convey_opt_DYNAMIC;
   const bool steady = options & convey_opt_PROGRESS;
-  bool local = false;
+  bool local = options & convey_opt_LOCAL;
   const bool compress = options & convey_opt_COMPRESS;
   const bool blocking = options & convey_opt_BLOCKING;
 
