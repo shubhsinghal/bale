@@ -518,6 +518,7 @@ porter_new(int n, int32_t relative[n], int my_rank,
 {
   if (n <= 0 || multiplicity == 0 || (multiplicity & multiplicity-1))
     return NULL;
+  multiplicity = 4;
   const bool dynamic = options & convey_opt_DYNAMIC;
   const bool steady = options & convey_opt_PROGRESS;
   const bool local = options & porter_opt_LOCAL;
