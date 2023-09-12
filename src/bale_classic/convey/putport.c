@@ -422,6 +422,13 @@ local_prepare(porter_t* self) { return NULL; }
 #if ENABLE_NONBLOCKING
 
 // Maintain (in putp->extra) a vector of the signals that need to be sent.
+static inline buffer_t*
+porter_outbuf_new(porter_t* self, int pe, uint64_t level)
+{
+  uint64_t index = (pe << self->abundance) + level;
+  return (buffer_t*) (self->send_buffers + index * self->buffer_stride);
+}
+
 
 static bool
 nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
@@ -431,7 +438,7 @@ nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
   if (n_bytes > 0) {
     const int rank = self->my_rank;
     const int pe = putp->friends[dest];
-    buffer_t* remote = porter_inbuf(self, rank, level);
+    buffer_t* remote = porter_outbuf_new(self, rank, level);
     DEBUG_PRINT("%zu bytes to %d, signal = %lu\n", buffer->limit - buffer->start, pe, signal);
     //shmem_putmem_nbi(remote, buffer, n_bytes, pe);
     shmem_putmem(remote, buffer, n_bytes, pe);
