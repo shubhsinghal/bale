@@ -337,7 +337,7 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     uint64_t index = (rank << self->abundance) + level;
     remote += index * self->buffer_stride;
     // memcpy(remote, buffer, n_bytes);
-    shmem_putmem_nbi(remote, buffer, n_bytes, dest);
+    shmem_putmem(remote, buffer, n_bytes, putp->friends[dest]);
     self->send_count++;
     self->byte_count += n_bytes;
   }
@@ -429,7 +429,8 @@ nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     const int pe = putp->friends[dest];
     buffer_t* remote = porter_inbuf(self, rank, level);
     DEBUG_PRINT("%zu bytes to %d, signal = %lu\n", buffer->limit - buffer->start, pe, signal);
-    shmem_putmem_nbi(remote, buffer, n_bytes, pe);
+    //shmem_putmem_nbi(remote, buffer, n_bytes, pe);
+    shmem_putmem(remote, buffer, n_bytes, pe);
     self->send_count++;
     self->byte_count += n_bytes;
   }
@@ -439,7 +440,13 @@ nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
 
   uint64_t* inflight = putp->extra;
   inflight[dest] = signal;
-  return false;
+  channel_t* channel = &self->channels[dest];
+  porter_record_delivery(self, dest, channel->emitted);
+  int pe = putp->friends[dest];
+  shmem_put64((uint64_t*) &putp->received[rank], &signal, 1, pe);
+  DEBUG_PRINT("sent signal %lu to %d\n", signal, pe);
+  inflight[dest] = 0;
+  return true;
 }
 
 static bool
