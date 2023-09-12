@@ -437,14 +437,15 @@ nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     shmem_putmem(remote, buffer, n_bytes, pe);
     self->send_count++;
     self->byte_count += n_bytes;
+
+    channel_t* channel = &self->channels[dest];
+    porter_record_delivery(self, dest, channel->emitted);
+    shmem_put64((uint64_t*) &putp->received[rank], &signal, 1, putp->friends[dest]);
+
   }
   else {
     DEBUG_PRINT("0 bytes to %d, signal = %lu\n", putp->friends[dest], signal);
   }
-
-  channel_t* channel = &self->channels[dest];
-  porter_record_delivery(self, dest, channel->emitted);
-  shmem_put64((uint64_t*) &putp->received[rank], &signal, 1, putp->friends[dest]);
   
   return true;
 }
