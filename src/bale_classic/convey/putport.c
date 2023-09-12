@@ -329,12 +329,14 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
            buffer_t* buffer, uint64_t signal)
 {
   const int rank = self->my_rank;
+  put_porter_t* putp = (put_porter_t*) self;
   const nbrhood_t* nbrhood = ((put_porter_t*)self)->extra;
 
   // Need local address of remote receive buffers
   if (n_bytes > 0) {
-    char* remote = nbrhood->buffer_ptrs[dest];
+    //char* remote = nbrhood->buffer_ptrs[dest];
     uint64_t index = (rank << self->abundance) + level;
+    buffer_t* remote = porter_inbuf(self, rank, level);
     remote += index * self->buffer_stride;
     // memcpy(remote, buffer, n_bytes);
     shmem_putmem(remote, buffer, n_bytes, putp->friends[dest]);
@@ -440,14 +442,10 @@ nonblock_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     DEBUG_PRINT("0 bytes to %d, signal = %lu\n", putp->friends[dest], signal);
   }
 
-  uint64_t* inflight = putp->extra;
-  inflight[dest] = signal;
   channel_t* channel = &self->channels[dest];
   porter_record_delivery(self, dest, channel->emitted);
-  int pe = putp->friends[dest];
-  shmem_put64((uint64_t*) &putp->received[rank], &signal, 1, pe);
-  DEBUG_PRINT("sent signal %lu to %d\n", signal, pe);
-  inflight[dest] = 0;
+  shmem_put64((uint64_t*) &putp->received[rank], &signal, 1, putp->friends[dest]);
+  
   return true;
 }
 
@@ -530,9 +528,12 @@ porter_new(int n, int32_t relative[n], int my_rank,
 
   const bool dynamic = options & convey_opt_DYNAMIC;
   const bool steady = options & convey_opt_PROGRESS;
-  const bool local = options & porter_opt_LOCAL;
+  // const bool local = options & porter_opt_LOCAL;
   const bool compress = options & convey_opt_COMPRESS;
-  const bool blocking = options & convey_opt_BLOCKING;
+  // const bool blocking = options & convey_opt_BLOCKING;
+  bool local = false;
+  bool blocking = false;
+
 
   put_porter_t* putp = malloc(sizeof(put_porter_t));
   if (putp == NULL)
