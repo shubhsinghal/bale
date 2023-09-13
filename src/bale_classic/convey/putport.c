@@ -344,8 +344,7 @@ local_send(porter_t* self, int dest, uint64_t level, size_t n_bytes,
     self->byte_count += n_bytes;
   }
 
-  int pe = putp->friends[dest];
-  shmem_put64((uint64_t*) &putp->received[rank], &signal, 1, pe);
+  shmem_put64((uint64_t*) &putp->received[rank], &signal, 1, putp->friends[dest]);
   // Need local address of remote 'received' array
   // atomic_uint64_t* notify = nbrhood->signal_ptrs[dest] + rank;
   // *notify = signal;  // atomic_store
