@@ -191,7 +191,7 @@ putp_return(porter_t* self)
     long long value = (disposed >> shift) + 1;
     int32_t pe = putp->friends[source];
 #if MPP_USE_SHMEM
-    shmem_longlong_put_nbi(&putp->consumed[slot], value, pe);  // @consumed
+    shmem_longlong_put_nbi(&putp->consumed[slot], &value, 1, pe);  // @consumed
 #else
     putp->all_consumed[THREADS * slot + pe] = value;
 #endif
