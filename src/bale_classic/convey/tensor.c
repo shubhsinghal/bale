@@ -210,9 +210,6 @@ tensor_advance(convey_t* self, bool done)
     tensor->stats[convey_COMMS] = porter_get_stats(porter, 0);
     tensor->stats[convey_SYNCS] = porter_get_stats(porter, 1);
     tensor->stats[convey_BYTES] = porter_get_stats(porter, 2);
-    // FILE *fp = fopen("a.txt", "a");
-    // fprintf(fp, "pe: %d, comms: %ld, sync: %ld, bytes: %ld\n", shmem_my_pe(), tensor->stats[convey_COMMS], tensor->stats[convey_SYNCS], tensor->stats[convey_BYTES]);
-    // fclose(fp);
   }
   return done ? convey_DONE : convey_OK;
 }
@@ -408,7 +405,7 @@ matrix_new(convey_t* base, size_t capacity, size_t n_procs,
       ? porter_new(n_rows, friends[1], me[1], t, capacity, n_buffers, alloc,
                options, CONVEY_SEND_1)
       : porter_new(n_local, friends[0], me[0], 4, capacity, n_buffers, alloc,
-               options, CONVEY_SEND_0);
+               options | porter_opt_LOCAL, CONVEY_SEND_0);
   }    
 
   if (! (matrix->porters[0] && matrix->porters[1])) {

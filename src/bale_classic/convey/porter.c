@@ -128,7 +128,7 @@ porter_send_buffer(porter_t* self, int dest, uint64_t count, bool last)
 bool
 porter_try_send(porter_t* self, int dest)
 {
-  //self->_class_->progress(self, dest);
+  self->_class_->progress(self, dest);
 
   channel_t* channel = &self->channels[dest];
   uint64_t produced = channel->produced;
